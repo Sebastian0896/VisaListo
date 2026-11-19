@@ -1,0 +1,419 @@
+// Plataforma privada de preparación DS-160 — modelo de datos
+// NOTA: Las respuestas del formulario se guardan cifradas (AES-256-GCM) en ApplicationAnswer.valueEnc.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ───────────────────────────── Enums ─────────────────────────────
+
+enum FileStatus {
+  PENDING_START // Pendiente de inicio
+  IN_PROGRESS // En proceso
+  SUBMITTED // Enviado
+  IN_REVIEW // En revisión
+  NEEDS_CORRECTIONS // Requiere correcciones
+  REOPENED // Reabierto
+  REVIEWED // Revisado
+  EXPIRED // Vencido
+}
+
+enum SenderType {
+  CLIENT
+  ADMIN
+}
+
+enum ActorType {
+  CLIENT
+  ADMIN
+  SYSTEM
+}
+
+enum QuestionType {
+  TEXT
+  TEXTAREA
+  EMAIL
+  PHONE
+  DATE
+  NUMBER
+  SELECT
+  RADIO
+  YESNO
+  COUNTRY
+  GROUP // lista repetible de sub-campos (empleos, hijos, viajes...)
+}
+
+enum TemplateVersionStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ReviewOutcome {
+  APPROVED
+  CORRECTIONS_REQUESTED
+}
+
+enum DocumentKind {
+  CLIENT_PDF
+  ADMIN_PDF
+  UPLOAD
+}
+
+// ───────────────────────────── Administración ─────────────────────────────
+
+model AdminUser {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String
+  passwordHash String
+  active       Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  notes    InternalNote[]
+  reviews  Review[]
+  messages Message[]
+}
+
+/// Configuración de la plataforma (fila única id = 1)
+model PlatformSettings {
+  id               Int      @id @default(1)
+  platformName     String   @default("VisaListo")
+  logoUrl          String?
+  whatsappNumber   String?
+  whatsappMessage  String   @default("Hola, estoy completando mi formulario de preparación y necesito asistencia. Mi código de expediente es: {codigo}")
+  validityDays     Int      @default(30)
+  expiryWarningDays Int     @default(5)
+  welcomeMessage   String   @default("Bienvenido. Complete su información con calma; su progreso se guarda automáticamente.")
+  expiryMessage    String   @default("El período de vigencia de su formulario terminó. Comuníquese con su asesor para solicitar una extensión.")
+  contactEmail     String?
+  contactPhone     String?
+  contactAddress   String?
+  officeHours      String?
+  aboutText        String   @default("Le acompañamos en la preparación de la información que necesitará para su solicitud de visa, con orientación clara en español.")
+  privacyPolicy    String   @default("")
+  privacyVersion   String   @default("2026-11")
+  updatedAt        DateTime @updatedAt
+}
+
+// ───────────────────────────── Plantillas del formulario ─────────────────────────────
+
+model FormTemplate {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+
+  versions FormTemplateVersion[]
+}
+
+model FormTemplateVersion {
+  id          String                @id @default(cuid())
+  templateId  String
+  version     Int
+  status      TemplateVersionStatus @default(DRAFT)
+  notes       String?
+  /// Fecha en la que un asesor verificó el contenido contra la referencia oficial vigente
+  verifiedAt  DateTime?
+  publishedAt DateTime?
+  createdAt   DateTime              @default(now())
+
+  template  FormTemplate      @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  sections  FormSection[]
+  files     ApplicationFile[]
+
+  @@unique([templateId, version])
+  @@index([status])
+}
+
+model FormSection {
+  id                String  @id @default(cuid())
+  templateVersionId String
+  key               String
+  order             Int
+  title             String
+  description       String?
+  /// Aviso destacado al inicio de la sección (p. ej. preguntas pendientes de verificación)
+  notice            String?
+
+  templateVersion FormTemplateVersion  @relation(fields: [templateVersionId], references: [id], onDelete: Cascade)
+  questions       FormQuestion[]
+  progress        ApplicationSection[]
+
+  @@unique([templateVersionId, key])
+  @@index([templateVersionId, order])
+}
+
+model FormQuestion {
+  id          String       @id @default(cuid())
+  sectionId   String
+  key         String
+  order       Int
+  label       String
+  type        QuestionType
+  required    Boolean      @default(false)
+  active      Boolean      @default(true)
+  /// Dato sensible (pasaporte, identificación…): se enmascara en listados
+  sensitive   Boolean      @default(false)
+  placeholder String?
+  /// Configuración adicional: { maxLength, min, max, past, future, rows, fields:[...] }
+  config      Json?
+  /// Condición de visibilidad: { "question": "clave", "equals": "valor" | ["a","b"] }
+  showIf      Json?
+
+  section FormSection         @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  options FormOption[]
+  help    HelpContent?
+  answers ApplicationAnswer[]
+
+  @@unique([sectionId, key])
+  @@index([sectionId, order])
+}
+
+model FormOption {
+  id         String @id @default(cuid())
+  questionId String
+  value      String
+  label      String
+  order      Int
+
+  question FormQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([questionId, value])
+}
+
+model HelpContent {
+  id            String   @id @default(cuid())
+  questionId    String   @unique
+  guidance      String
+  example       String?
+  notApplicable String?
+  warning       String?
+  updatedAt     DateTime @updatedAt
+
+  question FormQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+}
+
+model SecurityQuestion {
+  id     String  @id @default(cuid())
+  text   String
+  order  Int
+  active Boolean @default(true)
+
+  files ApplicationFile[]
+}
+
+// ───────────────────────────── Expedientes ─────────────────────────────
+
+model Applicant {
+  id          String   @id @default(cuid())
+  /// Datos de verificación capturados al crear el expediente (normalizados)
+  verifySurname String
+  birthYear   Int
+  /// Datos de visualización (sincronizados desde las respuestas)
+  firstSurname String
+  givenNames   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  files ApplicationFile[]
+
+  @@index([firstSurname])
+  @@index([givenNames])
+}
+
+model ApplicationFile {
+  id                 String     @id @default(cuid())
+  uniqueCode         String     @unique
+  applicantId        String
+  templateVersionId  String
+  status             FileStatus @default(PENDING_START)
+  createdAt          DateTime   @default(now())
+  /// Primer inicio efectivo del formulario (primera respuesta guardada). No se modifica luego.
+  startedAt          DateTime?
+  expiresAt          DateTime?
+  submittedAt        DateTime?
+  reviewedAt         DateTime?
+  lastActivityAt     DateTime   @default(now())
+  /// Vigencia (días) aplicada a este expediente al iniciarse
+  validityDays       Int?
+  securityQuestionId String
+  securityAnswerHash String
+  /// Bloqueo temporal por intentos fallidos de recuperación
+  failedAttempts     Int        @default(0)
+  lockedUntil        DateTime?
+  /// Indicación del asesor visible para el cliente (correcciones solicitadas)
+  correctionRequest  String?
+  progressPercent    Int        @default(0)
+  updatedAt          DateTime   @updatedAt
+
+  applicant        Applicant           @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+  templateVersion  FormTemplateVersion @relation(fields: [templateVersionId], references: [id])
+  securityQuestion SecurityQuestion    @relation(fields: [securityQuestionId], references: [id])
+
+  sections  ApplicationSection[]
+  answers   ApplicationAnswer[]
+  messages  Message[]
+  notes     InternalNote[]
+  reviews   Review[]
+  documents Document[]
+  auditLogs AuditLog[]
+  consents  ConsentRecord[]
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([startedAt])
+  @@index([submittedAt])
+  @@index([expiresAt])
+  @@index([lastActivityAt])
+}
+
+/// Progreso por sección de cada expediente
+model ApplicationSection {
+  id                String   @id @default(cuid())
+  applicationFileId String
+  sectionId         String
+  answeredRequired  Int      @default(0)
+  totalRequired     Int      @default(0)
+  answeredCount     Int      @default(0)
+  completed         Boolean  @default(false)
+  updatedAt         DateTime @updatedAt
+
+  applicationFile ApplicationFile @relation(fields: [applicationFileId], references: [id], onDelete: Cascade)
+  section         FormSection     @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  @@unique([applicationFileId, sectionId])
+}
+
+model ApplicationAnswer {
+  id                String   @id @default(cuid())
+  applicationFileId String
+  questionId        String
+  /// Valor JSON cifrado: "v1:<iv>:<tag>:<ciphertext>" (base64)
+  valueEnc          String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  applicationFile ApplicationFile @relation(fields: [applicationFileId], references: [id], onDelete: Cascade)
+  question        FormQuestion    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([applicationFileId, questionId])
+}
+
+// ───────────────────────────── Comunicación ─────────────────────────────
+
+model Message {
+  id                String     @id @default(cuid())
+  applicationFileId String
+  senderType        SenderType
+  adminUserId       String?
+  message           String
+  /// Mensaje enviado junto con la confirmación del formulario
+  isSubmissionNote  Boolean    @default(false)
+  createdAt         DateTime   @default(now())
+  readAt            DateTime?
+
+  applicationFile ApplicationFile @relation(fields: [applicationFileId], references: [id], onDelete: Cascade)
+  adminUser       AdminUser?      @relation(fields: [adminUserId], references: [id], onDelete: SetNull)
+
+  @@index([applicationFileId, createdAt])
+  @@index([senderType, readAt])
+}
+
+model InternalNote {
+  id                String   @id @default(cuid())
+  applicationFileId String
+  adminUserId       String?
+  body              String
+  createdAt         DateTime @default(now())
+
+  applicationFile ApplicationFile @relation(fields: [applicationFileId], references: [id], onDelete: Cascade)
+  adminUser       AdminUser?      @relation(fields: [adminUserId], references: [id], onDelete: SetNull)
+
+  @@index([applicationFileId, createdAt])
+}
+
+model Review {
+  id                String        @id @default(cuid())
+  applicationFileId String
+  adminUserId       String?
+  outcome           ReviewOutcome
+  comments          String?
+  createdAt         DateTime      @default(now())
+
+  applicationFile ApplicationFile @relation(fields: [applicationFileId], references: [id], onDelete: Cascade)
+  adminUser       AdminUser?      @relation(fields: [adminUserId], references: [id], onDelete: SetNull)
+
+  @@index([applicationFileId])
+}
+
+/// Documentos generados o cargados. Los PDF se generan bajo demanda (no hay enlaces públicos).
+model Document {
+  id                String       @id @default(cuid())
+  applicationFileId String
+  kind              DocumentKind
+  fileName          String
+  /// Ruta en almacenamiento privado (solo para cargas)
+  storageKey        String?
+  mimeType          String?
+  sizeBytes         Int?
+  createdByType     ActorType
+  createdAt         DateTime     @default(now())
+
+  applicationFile ApplicationFile @relation(fields: [applicationFileId], references: [id], onDelete: Cascade)
+
+  @@index([applicationFileId])
+}
+
+// ───────────────────────────── Seguridad y auditoría ─────────────────────────────
+
+model AuditLog {
+  id                String    @id @default(cuid())
+  applicationFileId String?
+  actorType         ActorType
+  actorId           String?
+  action            String
+  /// Detalles sin datos sensibles (nunca valores de respuestas)
+  details           Json?
+  ipHash            String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  applicationFile ApplicationFile? @relation(fields: [applicationFileId], references: [id], onDelete: Cascade)
+
+  @@index([applicationFileId, createdAt])
+  @@index([action])
+  @@index([createdAt])
+}
+
+model ConsentRecord {
+  id                String   @id @default(cuid())
+  applicationFileId String
+  kind              String // "privacy" | "terms" | "submission_declaration"
+  version           String
+  ipHash            String?
+  createdAt         DateTime @default(now())
+
+  applicationFile ApplicationFile @relation(fields: [applicationFileId], references: [id], onDelete: Cascade)
+
+  @@index([applicationFileId])
+}
+
+/// Intentos de recuperación / inicio de sesión por IP (protección contra automatización)
+model RecoveryAttempt {
+  id        String   @id @default(cuid())
+  kind      String   @default("recovery") // "recovery" | "admin_login" | "create"
+  ipHash    String
+  success   Boolean
+  createdAt DateTime @default(now())
+
+  @@index([kind, ipHash, createdAt])
+}
