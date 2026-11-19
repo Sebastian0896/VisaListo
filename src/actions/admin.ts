@@ -10,7 +10,8 @@ import { db } from "@/lib/db";
 import { getSettings } from "@/lib/settings";
 import { ADMIN_TRANSITIONS, STATUS_LABELS } from "@/lib/status";
 import { addDays } from "@/server/files";
-import { assertAdmin } from "@/server/guards";
+import { canAccessFile } from "@/server/advisors";
+import { assertAdmin, getAdmin } from "@/server/guards";
 
 type Result = { ok: true } | { ok: false; error: string };
 
@@ -18,6 +19,14 @@ function revalidateFile(fileId: string) {
   revalidatePath(`/admin/expedientes/${fileId}`);
   revalidatePath("/admin/expedientes");
   revalidatePath("/admin");
+}
+
+/** Usuario del panel con acceso al expediente (Administrador: todos; Asesor: los suyos). */
+async function fileGuard(fileId: string) {
+  if (typeof fileId !== "string" || fileId.length > 40) return null;
+  const a = await getAdmin();
+  if (!a || !(await canAccessFile(a, fileId))) return null;
+  return a;
 }
 
 // ───────────── Sesión ─────────────
@@ -44,7 +53,8 @@ export async function adminLogoutAction() {
 const idSchema = z.string().min(1).max(40);
 
 export async function changeStatusAction(fileId: string, to: FileStatus): Promise<Result> {
-  const a = await assertAdmin();
+  const a = await fileGuard(fileId);
+  if (!a) return { ok: false, error: "No tiene acceso a este expediente." };
   idSchema.parse(fileId);
   const file = await db.applicationFile.findUnique({ where: { id: fileId } });
   if (!file) return { ok: false, error: "Expediente no encontrado" };
@@ -64,7 +74,8 @@ export async function changeStatusAction(fileId: string, to: FileStatus): Promis
 }
 
 export async function requestCorrectionsAction(fileId: string, text: string): Promise<Result> {
-  const a = await assertAdmin();
+  const a = await fileGuard(fileId);
+  if (!a) return { ok: false, error: "No tiene acceso a este expediente." };
   const body = z.string().trim().min(5, "Describa qué debe corregirse").max(3000).safeParse(text);
   if (!body.success) return { ok: false, error: body.error.issues[0].message };
   const file = await db.applicationFile.findUnique({ where: { id: fileId } });
@@ -88,7 +99,8 @@ export async function requestCorrectionsAction(fileId: string, text: string): Pr
 }
 
 export async function markReviewedAction(fileId: string, comments: string): Promise<Result> {
-  const a = await assertAdmin();
+  const a = await fileGuard(fileId);
+  if (!a) return { ok: false, error: "No tiene acceso a este expediente." };
   const file = await db.applicationFile.findUnique({ where: { id: fileId } });
   if (!file) return { ok: false, error: "Expediente no encontrado" };
   if (!ADMIN_TRANSITIONS[file.status].includes("REVIEWED")) return { ok: false, error: "El expediente no puede marcarse como revisado en su estado actual." };
@@ -104,7 +116,8 @@ export async function markReviewedAction(fileId: string, comments: string): Prom
 }
 
 export async function reopenAction(fileId: string, days?: number): Promise<Result> {
-  const a = await assertAdmin();
+  const a = await fileGuard(fileId);
+  if (!a) return { ok: false, error: "No tiene acceso a este expediente." };
   const file = await db.applicationFile.findUnique({ where: { id: fileId } });
   if (!file) return { ok: false, error: "Expediente no encontrado" };
   if (!ADMIN_TRANSITIONS[file.status].includes("REOPENED")) return { ok: false, error: "El expediente no puede reabrirse en su estado actual." };
@@ -124,7 +137,8 @@ export async function reopenAction(fileId: string, days?: number): Promise<Resul
 }
 
 export async function extendValidityAction(fileId: string, days: number): Promise<Result> {
-  const a = await assertAdmin();
+  const a = await fileGuard(fileId);
+  if (!a) return { ok: false, error: "No tiene acceso a este expediente." };
   const d = z.coerce.number().int().min(1, "Mínimo 1 día").max(365, "Máximo 365 días").safeParse(days);
   if (!d.success) return { ok: false, error: d.error.issues[0].message };
   const file = await db.applicationFile.findUnique({ where: { id: fileId } });
@@ -152,7 +166,8 @@ export async function extendValidityAction(fileId: string, days: number): Promis
 // ───────────── Notas y mensajes ─────────────
 
 export async function addNoteAction(fileId: string, body: string): Promise<Result> {
-  const a = await assertAdmin();
+  const a = await fileGuard(fileId);
+  if (!a) return { ok: false, error: "No tiene acceso a este expediente." };
   const text = z.string().trim().min(2, "Escriba la nota").max(4000).safeParse(body);
   if (!text.success) return { ok: false, error: text.error.issues[0].message };
   await db.internalNote.create({ data: { applicationFileId: fileId, adminUserId: a.id, body: text.data } });
@@ -162,7 +177,8 @@ export async function addNoteAction(fileId: string, body: string): Promise<Resul
 }
 
 export async function sendAdminMessageAction(fileId: string, input: { message: string }): Promise<Result> {
-  const a = await assertAdmin();
+  const a = await fileGuard(fileId);
+  if (!a) return { ok: false, error: "No tiene acceso a este expediente." };
   const text = z.string().trim().min(2, "Escriba un mensaje").max(2000).safeParse(input.message);
   if (!text.success) return { ok: false, error: text.error.issues[0].message };
   const file = await db.applicationFile.findUnique({ where: { id: fileId }, select: { id: true } });
@@ -408,5 +424,22 @@ export async function toggleVerifiedAction(versionId: string, verified: boolean)
   await audit({ action: "template.updated", actorType: "ADMIN", actorId: a.id, details: { kind: verified ? "version_verified" : "version_unverified" } });
   revalidatePath("/admin/formulario");
   revalidatePath(`/admin/formulario/${versionId}`);
+  return { ok: true };
+}
+
+// ───────────── Asignación de asesor (solo Administrador) ─────────────
+
+export async function reassignFileAction(fileId: string, advisorId: string | null): Promise<Result> {
+  const a = await assertAdmin("ADMIN");
+  const file = await db.applicationFile.findUnique({ where: { id: fileId }, select: { id: true, advisorId: true } });
+  if (!file) return { ok: false, error: "Expediente no encontrado" };
+  if (advisorId) {
+    const target = await db.adminUser.findUnique({ where: { id: advisorId }, select: { active: true } });
+    if (!target?.active) return { ok: false, error: "El usuario seleccionado no existe o está inactivo." };
+  }
+  if ((file.advisorId ?? null) === (advisorId ?? null)) return { ok: true };
+  await db.applicationFile.update({ where: { id: fileId }, data: { advisorId } });
+  await audit({ action: "file.assigned", actorType: "ADMIN", actorId: a.id, fileId, details: { from: file.advisorId, advisorId, via: "admin" } });
+  revalidateFile(fileId);
   return { ok: true };
 }

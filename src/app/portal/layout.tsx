@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
 
 export default async function PortalLayout({ children }: LayoutProps<"/portal">) {
   const { file, settings, unread, sections } = await getPortalData();
-  const wa = whatsappLink(settings.whatsappNumber, settings.whatsappMessage, file.uniqueCode);
+  const wa = whatsappLink((file.advisor?.active && file.advisor.whatsappNumber) || settings.whatsappNumber, settings.whatsappMessage, file.uniqueCode);
   const firstSection = sections[0]?.key ?? "";
   const nav = [
     { href: "/portal", label: "Resumen", icon: Home },

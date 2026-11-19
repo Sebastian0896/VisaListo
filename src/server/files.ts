@@ -8,6 +8,7 @@ import { burnHashTime, hashSecurityAnswer, verifySecurityAnswer } from "@/lib/ha
 import { normalizeCode, normalizeText } from "@/lib/normalize";
 import { getSettings } from "@/lib/settings";
 import { CLIENT_EDITABLE, EXPIRABLE } from "@/lib/status";
+import { findAdvisorByCode } from "./advisors";
 import { getPublishedVersion } from "./form";
 
 // ───────────── Límites contra intentos automatizados ─────────────
@@ -44,6 +45,8 @@ export async function createApplicationFile(input: {
   birthYear: number;
   securityQuestionId: string;
   securityAnswer: string;
+  /** Código del asesor que escribió el cliente (opcional) */
+  advisorCode?: string;
   ipHash: string;
 }) {
   if (await isRateLimited("create", input.ipHash, CREATE_MAX_PER_HOUR, 60 * 60 * 1000, false)) {
@@ -56,6 +59,16 @@ export async function createApplicationFile(input: {
   ]);
   if (!version) return { ok: false as const, error: "El formulario no está disponible en este momento." };
   if (!question) return { ok: false as const, error: "Seleccione una pregunta de seguridad válida." };
+
+  // Código de asesor: si se escribió, debe existir y estar activo (no se ignora en silencio)
+  let advisorId: string | null = null;
+  let advisorName: string | null = null;
+  if (input.advisorCode && input.advisorCode.trim()) {
+    const advisor = await findAdvisorByCode(input.advisorCode);
+    if (!advisor) return { ok: false as const, error: "El código de asesor no es válido. Revíselo o déjelo vacío." };
+    advisorId = advisor.id;
+    advisorName = advisor.name;
+  }
 
   const securityAnswerHash = await hashSecurityAnswer(input.securityAnswer);
   const surname = input.surname.trim().replace(/\s+/g, " ");
@@ -75,17 +88,19 @@ export async function createApplicationFile(input: {
             templateVersionId: version.id,
             securityQuestionId: question.id,
             securityAnswerHash,
+            advisorId,
           },
         });
         await tx.consentRecord.create({
           data: { applicationFileId: file.id, kind: "privacy", version: settings.privacyVersion, ipHash: input.ipHash },
         });
-        await audit({ action: "file.created", actorType: "CLIENT", fileId: file.id, ipHash: input.ipHash }, tx);
+        await audit({ action: "file.created", actorType: "CLIENT", fileId: file.id, ipHash: input.ipHash, details: { withAdvisor: !!advisorId } }, tx);
+        if (advisorId) await audit({ action: "file.assigned", actorType: "CLIENT", fileId: file.id, details: { advisorId, via: "code" } }, tx);
         await audit({ action: "consent.accepted", actorType: "CLIENT", fileId: file.id, details: { kind: "privacy", version: settings.privacyVersion } }, tx);
         return file;
       });
       await recordAttempt("create", input.ipHash, true);
-      return { ok: true as const, fileId: file.id, code: file.uniqueCode, question: question.text };
+      return { ok: true as const, fileId: file.id, code: file.uniqueCode, question: question.text, advisorName };
     } catch (e) {
       if ((e as { code?: string }).code === "P2002") continue;
       throw e;
@@ -196,7 +211,7 @@ export function clientCanEdit(file: Pick<ApplicationFile, "status" | "expiresAt"
 export async function getClientFile(fileId: string) {
   const file = await db.applicationFile.findUnique({
     where: { id: fileId },
-    include: { applicant: true, securityQuestion: true },
+    include: { applicant: true, securityQuestion: true, advisor: { select: { name: true, whatsappNumber: true, active: true } } },
   });
   if (!file) return null;
   return applyExpiry(file);

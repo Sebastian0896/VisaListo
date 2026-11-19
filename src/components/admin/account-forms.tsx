@@ -10,16 +10,15 @@ import { NativeSelect } from "@/components/form/primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PASSWORD_HINT, ROLE_LABELS } from "@/lib/roles";
 import { cn } from "@/lib/utils";
 
-export const PASSWORD_HINT = "Mínimo 10 caracteres, con letras y al menos un número.";
-export const ROLE_LABELS = { ADMIN: "Administrador", ADVISOR: "Asesor" } as const;
 type Role = keyof typeof ROLE_LABELS;
 
-export function AccountForm({ name, email }: { name: string; email: string }) {
+export function AccountForm({ name, email, whatsappNumber }: { name: string; email: string; whatsappNumber: string }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const form = useForm<AccountInput>({ defaultValues: { name, email, currentPassword: "", newPassword: "", confirmPassword: "" } });
+  const form = useForm<AccountInput>({ defaultValues: { name, email, whatsappNumber, currentPassword: "", newPassword: "", confirmPassword: "" } });
 
   return (
     <form
@@ -29,7 +28,7 @@ export function AccountForm({ name, email }: { name: string; email: string }) {
           const res = await updateAccountAction(v);
           if (!res.ok) return void toast.error(res.error);
           toast.success(v.newPassword ? "Cuenta y contraseña actualizadas" : "Cuenta actualizada");
-          form.reset({ name: v.name, email: v.email.trim().toLowerCase(), currentPassword: "", newPassword: "", confirmPassword: "" });
+          form.reset({ name: v.name, email: v.email.trim().toLowerCase(), whatsappNumber: v.whatsappNumber, currentPassword: "", newPassword: "", confirmPassword: "" });
           router.refresh();
         }),
       )}
@@ -42,6 +41,11 @@ export function AccountForm({ name, email }: { name: string; email: string }) {
         <div className="space-y-1.5">
           <Label htmlFor="acc-email">Correo de acceso</Label>
           <Input id="acc-email" type="email" className="h-10 bg-card" autoComplete="username" {...form.register("email")} />
+        </div>
+        <div className="space-y-1.5 sm:col-span-2">
+          <Label htmlFor="acc-wa">Mi WhatsApp (opcional)</Label>
+          <Input id="acc-wa" type="tel" className="h-10 bg-card sm:max-w-xs" placeholder="+1 809 000 0000" {...form.register("whatsappNumber")} />
+          <p className="text-xs text-muted-foreground">Si lo completa, el botón de WhatsApp de sus clientes le escribirá a usted. Si no, usa el número general de la plataforma.</p>
         </div>
       </div>
 
@@ -73,7 +77,7 @@ export function AccountForm({ name, email }: { name: string; email: string }) {
   );
 }
 
-type UserRow = { id: string; name: string; email: string; role: Role; active: boolean; lastLoginAt: string | null };
+type UserRow = { id: string; name: string; email: string; role: Role; active: boolean; lastLoginAt: string | null; advisorCode: string; files: number };
 
 export function UsersManager({ users, currentId }: { users: UserRow[]; currentId: string }) {
   const router = useRouter();
@@ -103,7 +107,7 @@ export function UsersManager({ users, currentId }: { users: UserRow[]; currentId
                   {me && <span className="rounded bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground">Usted</span>}
                   {!u.active && <span className="text-[11px] font-semibold text-rose-700">Inactivo</span>}
                 </p>
-                <p className="truncate text-xs text-muted-foreground">{u.email} · Último acceso: {u.lastLoginAt ?? "nunca"}</p>
+                <p className="truncate text-xs text-muted-foreground">{u.email} · Código <span className="font-mono font-semibold text-foreground">{u.advisorCode}</span> · {u.files} expediente{u.files === 1 ? "" : "s"} · Último acceso: {u.lastLoginAt ?? "nunca"}</p>
               </div>
               {!me && (
                 <div className="flex flex-wrap gap-2">

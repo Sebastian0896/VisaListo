@@ -18,7 +18,7 @@ export default async function AdminPrintPage(props: PageProps<"/admin/expediente
   const { id } = await props.params;
   const sp = await props.searchParams;
   const internal = sp.interno === "1";
-  const data = await getAdminFile(id);
+  const data = await getAdminFile(id, admin);
   if (!data) notFound();
   const settings = await getSettings();
   await audit({ action: "pdf.admin_downloaded", actorType: "ADMIN", actorId: admin.id, fileId: id, details: { format: "print", internal } });

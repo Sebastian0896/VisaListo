@@ -13,7 +13,7 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/pdf/admin/[i
   const admin = await getAdmin();
   if (!admin) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   const { id } = await ctx.params;
-  const data = await getAdminFile(id);
+  const data = await getAdminFile(id, admin);
   if (!data) return NextResponse.json({ error: "No encontrado" }, { status: 404 });
   const settings = await getSettings();
   const internal = req.nextUrl.searchParams.get("interno") === "1";

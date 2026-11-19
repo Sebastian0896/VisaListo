@@ -15,7 +15,7 @@ export default async function ClientMessagesPage() {
   const messages = await db.message.findMany({ where: { applicationFileId: file.id }, orderBy: { createdAt: "asc" } });
   // Al abrir la conversación, los mensajes del asesor quedan como leídos
   await db.message.updateMany({ where: { applicationFileId: file.id, senderType: "ADMIN", readAt: null }, data: { readAt: new Date() } });
-  const wa = whatsappLink(settings.whatsappNumber, settings.whatsappMessage, file.uniqueCode);
+  const wa = whatsappLink((file.advisor?.active && file.advisor.whatsappNumber) || settings.whatsappNumber, settings.whatsappMessage, file.uniqueCode);
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-4 py-8">

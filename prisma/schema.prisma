@@ -77,6 +77,10 @@ model AdminUser {
   email        String    @unique
   name         String
   role         AdminRole @default(ADVISOR)
+  /// Código que el cliente escribe al comenzar para quedar vinculado a este usuario
+  advisorCode  String    @unique
+  /// WhatsApp propio del asesor (si está vacío se usa el general de la plataforma)
+  whatsappNumber String?
   passwordHash String
   active       Boolean   @default(true)
   lastLoginAt  DateTime?
@@ -86,6 +90,7 @@ model AdminUser {
   notes    InternalNote[]
   reviews  Review[]
   messages Message[]
+  files    ApplicationFile[]
 }
 
 /// Configuración de la plataforma (fila única id = 1)
@@ -241,6 +246,8 @@ model ApplicationFile {
   uniqueCode         String     @unique
   applicantId        String
   templateVersionId  String
+  /// Asesor asignado (por su código o por el administrador). Null = sin asignar
+  advisorId          String?
   status             FileStatus @default(PENDING_START)
   createdAt          DateTime   @default(now())
   /// Primer inicio efectivo del formulario (primera respuesta guardada). No se modifica luego.
@@ -264,6 +271,7 @@ model ApplicationFile {
   applicant        Applicant           @relation(fields: [applicantId], references: [id], onDelete: Cascade)
   templateVersion  FormTemplateVersion @relation(fields: [templateVersionId], references: [id])
   securityQuestion SecurityQuestion    @relation(fields: [securityQuestionId], references: [id])
+  advisor          AdminUser?          @relation(fields: [advisorId], references: [id], onDelete: SetNull)
 
   sections  ApplicationSection[]
   answers   ApplicationAnswer[]
@@ -275,6 +283,7 @@ model ApplicationFile {
   consents  ConsentRecord[]
 
   @@index([status])
+  @@index([advisorId])
   @@index([createdAt])
   @@index([startedAt])
   @@index([submittedAt])

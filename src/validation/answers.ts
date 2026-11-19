@@ -93,6 +93,7 @@ export const createFileSchema = z.object({
   securityQuestionId: z.string().min(1, "Seleccione una pregunta"),
   securityAnswer: z.string().trim().min(3, "La respuesta debe tener al menos 3 caracteres").max(100),
   securityAnswerConfirm: z.string().trim(),
+  advisorCode: z.string().trim().max(20, "Código de asesor no válido").optional(),
   acceptPrivacy: z.literal(true, { message: "Debe aceptar la política de privacidad para continuar" }),
 }).refine((d) => d.securityAnswer.toLowerCase() === d.securityAnswerConfirm.toLowerCase(), {
   path: ["securityAnswerConfirm"],

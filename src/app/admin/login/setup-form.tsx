@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { createFirstAdminAction, type SetupInput } from "@/actions/account";
-import { PASSWORD_HINT } from "@/components/admin/account-forms";
+import { PASSWORD_HINT } from "@/lib/roles";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

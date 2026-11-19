@@ -8,6 +8,8 @@ import { db } from "@/lib/db";
 import { formatDateTime, nowMs } from "@/lib/format";
 import { EXPIRABLE, STATUS_LABELS } from "@/lib/status";
 import { cn } from "@/lib/utils";
+import { fileScope } from "@/server/advisors";
+import { requireAdmin } from "@/server/guards";
 import { sweepExpired } from "@/server/files";
 
 export const metadata: Metadata = { title: "Dashboard" };
@@ -25,20 +27,22 @@ const CARDS: { status: FileStatus | "ALL"; label: string; tone: string }[] = [
 
 export default async function AdminDashboard(props: PageProps<"/admin">) {
   const denied = (await props.searchParams).acceso === "denegado";
+  const me = await requireAdmin();
+  const scope = fileScope(me);
   await sweepExpired();
   const soon = new Date(nowMs() + 5 * 86400_000);
   const [grouped, total, recentSubmitted, unreadThreads, expiringSoon] = await Promise.all([
-    db.applicationFile.groupBy({ by: ["status"], _count: { _all: true } }),
-    db.applicationFile.count(),
+    db.applicationFile.groupBy({ by: ["status"], where: scope, _count: { _all: true } }),
+    db.applicationFile.count({ where: scope }),
     db.applicationFile.findMany({
-      where: { status: "SUBMITTED" },
+      where: { status: "SUBMITTED", ...scope },
       orderBy: { submittedAt: "desc" },
       take: 6,
       include: { applicant: true, _count: { select: { messages: { where: { senderType: "CLIENT", readAt: null } } } } },
     }),
-    db.message.groupBy({ by: ["applicationFileId"], where: { senderType: "CLIENT", readAt: null }, _count: { _all: true }, _max: { createdAt: true }, orderBy: { _max: { createdAt: "desc" } }, take: 6 }),
+    db.message.groupBy({ by: ["applicationFileId"], where: { senderType: "CLIENT", readAt: null, applicationFile: scope }, _count: { _all: true }, _max: { createdAt: true }, orderBy: { _max: { createdAt: "desc" } }, take: 6 }),
     db.applicationFile.findMany({
-      where: { status: { in: EXPIRABLE }, expiresAt: { gt: new Date(), lte: soon } },
+      where: { status: { in: EXPIRABLE }, expiresAt: { gt: new Date(), lte: soon }, ...scope },
       orderBy: { expiresAt: "asc" },
       take: 6,
       include: { applicant: true },

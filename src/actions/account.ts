@@ -12,6 +12,7 @@ import { getClientIpHash } from "@/lib/request";
 import { assertAdmin } from "@/server/guards";
 import { isRateLimited, RATE_LIMIT_ERROR, recordAttempt } from "@/server/files";
 import { setupStatus } from "@/server/setup";
+import { uniqueAdvisorCode } from "@/server/advisors";
 
 type Result = { ok: true } | { ok: false; error: string };
 
@@ -39,6 +40,7 @@ const accountSchema = z.object({
   currentPassword: z.string().min(1, "Escriba su contraseña actual").max(200),
   newPassword: z.string().max(200),
   confirmPassword: z.string().max(200),
+  whatsappNumber: z.string().trim().regex(/^\+?[\d\s-]{0,20}$/, "Número de WhatsApp no válido").max(20),
 });
 export type AccountInput = z.input<typeof accountSchema>;
 
@@ -67,9 +69,9 @@ export async function updateAccountAction(input: AccountInput): Promise<Result> 
 
   await db.adminUser.update({
     where: { id: me.id },
-    data: { name: d.name, email: d.email, ...(changingPassword ? { passwordHash: await hashPassword(d.newPassword) } : {}) },
+    data: { name: d.name, email: d.email, whatsappNumber: d.whatsappNumber || null, ...(changingPassword ? { passwordHash: await hashPassword(d.newPassword) } : {}) },
   });
-  const changed = [d.name !== user.name && "nombre", d.email !== user.email && "correo"].filter(Boolean);
+  const changed = [d.name !== user.name && "nombre", d.email !== user.email && "correo", (d.whatsappNumber || null) !== user.whatsappNumber && "whatsapp"].filter(Boolean);
   if (changed.length) await audit({ action: "admin.account_updated", actorType: "ADMIN", actorId: me.id, details: { fields: changed } });
   if (changingPassword) await audit({ action: "admin.password_changed", actorType: "ADMIN", actorId: me.id });
   revalidatePath("/admin", "layout");
@@ -93,7 +95,7 @@ export async function createUserAction(input: NewUserInput): Promise<Result> {
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Datos no válidos" };
   const d = parsed.data;
   if (await db.adminUser.findUnique({ where: { email: d.email } })) return { ok: false, error: "Ya existe un usuario con ese correo." };
-  const created = await db.adminUser.create({ data: { name: d.name, email: d.email, role: d.role, passwordHash: await hashPassword(d.password) } });
+  const created = await db.adminUser.create({ data: { name: d.name, email: d.email, role: d.role, advisorCode: await uniqueAdvisorCode(), passwordHash: await hashPassword(d.password) } });
   await audit({ action: "admin.created", actorType: "ADMIN", actorId: me.id, details: { adminId: created.id, role: d.role } });
   revalidatePath("/admin/usuarios");
   return { ok: true };
@@ -180,7 +182,7 @@ export async function createFirstAdminAction(input: SetupInput): Promise<Result>
         const passwordHash = await hashPassword(d.password);
         const user = existing
           ? await tx.adminUser.update({ where: { id: existing.id }, data: { name: d.name, role: "ADMIN", active: true, passwordHash } })
-          : await tx.adminUser.create({ data: { name: d.name, email: d.email, role: "ADMIN", passwordHash } });
+          : await tx.adminUser.create({ data: { name: d.name, email: d.email, role: "ADMIN", advisorCode: await uniqueAdvisorCode(tx), passwordHash } });
         await audit({ action: "admin.created", actorType: "SYSTEM", actorId: user.id, ipHash, details: { setup: true, role: "ADMIN" } }, tx);
       },
       { isolationLevel: "Serializable" },

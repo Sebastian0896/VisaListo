@@ -9,3 +9,10 @@ export function generateUniqueCode(): string {
   for (let i = 0; i < 12; i++) body += ALPHABET[randomInt(ALPHABET.length)];
   return `DS-${body.slice(0, 4)}-${body.slice(4, 8)}-${body.slice(8, 12)}`;
 }
+
+/** Código de asesor: 6 caracteres del mismo alfabeto sin ambigüedades (ej.: K7M2QX). */
+export function generateAdvisorCode(): string {
+  let code = "";
+  for (let i = 0; i < 6; i++) code += ALPHABET[randomInt(ALPHABET.length)];
+  return code;
+}

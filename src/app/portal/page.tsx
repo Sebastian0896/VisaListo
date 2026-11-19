@@ -1,7 +1,8 @@
-import { AlertTriangle, ArrowRight, CheckCircle2, Circle, Download, MessageSquare, Printer, Send } from "lucide-react";
+import { AlertTriangle, ArrowRight, CheckCircle2, Circle, Download, MessageSquare, Printer, Send, UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ExpiryCountdown } from "@/components/portal/expiry-countdown";
+import { LinkAdvisorForm } from "@/components/portal/link-advisor";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { buttonVariants } from "@/components/ui/button";
 import { formatDateTime } from "@/lib/format";
@@ -105,6 +106,11 @@ export default async function PortalHome() {
           </div>
           <div className="rounded-2xl border bg-card p-5 shadow-sm">
             <h2 className="text-sm font-semibold">Su asesor</h2>
+            {file.advisor?.active ? (
+              <p className="mt-2 flex items-center gap-2 text-sm"><UserRound className="size-4 text-primary" /> <span className="font-medium">{file.advisor.name}</span></p>
+            ) : (
+              <LinkAdvisorForm />
+            )}
             <Link href="/portal/mensajes" className="mt-3 flex items-center justify-between rounded-lg border px-3 py-2.5 text-sm transition hover:bg-muted/50">
               <span className="flex items-center gap-2"><MessageSquare className="size-4 text-primary" /> Mensajes</span>
               {unread > 0 ? <span className="rounded-full bg-primary px-2 text-xs font-semibold text-primary-foreground">{unread} nuevo{unread > 1 ? "s" : ""}</span> : <ArrowRight className="size-4 text-muted-foreground" />}

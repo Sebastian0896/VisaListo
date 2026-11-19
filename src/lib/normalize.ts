@@ -20,3 +20,8 @@ export function normalizeCode(value: string): string {
   if (body.length !== 12) return compact;
   return `DS-${body.slice(0, 4)}-${body.slice(4, 8)}-${body.slice(8, 12)}`;
 }
+
+/** Normaliza un código de asesor escrito por el cliente: mayúsculas, sin espacios ni guiones. */
+export function normalizeAdvisorCode(value: string): string {
+  return value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 20);
+}

@@ -10,6 +10,7 @@ export type AuditAction =
   | "answers.updated"
   | "file.submitted"
   | "file.status_changed"
+  | "file.assigned"
   | "file.corrections_requested"
   | "file.reopened"
   | "file.extended"
@@ -38,6 +39,7 @@ export const AUDIT_LABELS: Record<string, string> = {
   "answers.updated": "Respuestas actualizadas",
   "file.submitted": "Formulario enviado",
   "file.status_changed": "Cambio de estado",
+  "file.assigned": "Asesor asignado",
   "file.corrections_requested": "Correcciones solicitadas",
   "file.reopened": "Expediente reabierto",
   "file.extended": "Vigencia extendida",

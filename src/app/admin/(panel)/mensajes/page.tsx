@@ -5,14 +5,18 @@ import { PageHeader } from "@/components/admin/page-header";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { db } from "@/lib/db";
 import { formatDateTime } from "@/lib/format";
+import { fileScope } from "@/server/advisors";
+import { requireAdmin } from "@/server/guards";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Mensajes" };
 
 export default async function AdminMessagesPage() {
   // Conversaciones ordenadas por último mensaje
+  const me = await requireAdmin();
   const threads = await db.message.groupBy({
     by: ["applicationFileId"],
+    where: { applicationFile: fileScope(me) },
     _max: { createdAt: true },
     orderBy: { _max: { createdAt: "desc" } },
     take: 100,

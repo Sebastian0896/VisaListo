@@ -18,19 +18,20 @@ import {
   recordAttempt,
   recoverApplicationFile,
 } from "@/server/files";
+import { findAdvisorByCode } from "@/server/advisors";
 import { loadFormVersion } from "@/server/form";
 import { createFileSchema, messageSchema, recoverSchema, type CreateFileInput, type RecoverInput } from "@/validation/answers";
 
 type Result<T = object> = ({ ok: true } & T) | { ok: false; error: string };
 
-export async function createFileAction(input: CreateFileInput): Promise<Result<{ code: string; question: string }>> {
+export async function createFileAction(input: CreateFileInput): Promise<Result<{ code: string; question: string; advisorName: string | null }>> {
   const parsed = createFileSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Datos no válidos" };
   const ipHash = await getClientIpHash();
   const res = await createApplicationFile({ ...parsed.data, ipHash });
   if (!res.ok) return res;
   await setClientSession(res.fileId);
-  return { ok: true, code: res.code, question: res.question };
+  return { ok: true, code: res.code, question: res.question, advisorName: res.advisorName };
 }
 
 export async function lookupQuestionAction(code: string): Promise<Result<{ question: string }>> {
@@ -126,4 +127,29 @@ export async function markAdvisorMessagesReadAction() {
   const fileId = await getClientFileId();
   if (!fileId) return;
   await db.message.updateMany({ where: { applicationFileId: fileId, senderType: "ADMIN", readAt: null }, data: { readAt: new Date() } });
+}
+
+/** Vincula el expediente del cliente a un asesor mediante su código (solo si aún no tiene uno). */
+export async function linkAdvisorAction(input: { code: string }): Promise<Result<{ advisorName: string }>> {
+  const fileId = await getClientFileId();
+  if (!fileId) return { ok: false, error: "Su sesión expiró. Vuelva a ingresar con su código." };
+  const ipHash = await getClientIpHash();
+  if (await isRateLimited("advisor_link", ipHash, 10, 15 * 60 * 1000)) return { ok: false, error: RATE_LIMIT_ERROR };
+  if (typeof input?.code !== "string" || !input.code.trim()) return { ok: false, error: "Escriba el código de su asesor." };
+
+  const file = await db.applicationFile.findUnique({ where: { id: fileId }, select: { advisorId: true } });
+  if (!file) return { ok: false, error: "Sesión no válida." };
+  if (file.advisorId) return { ok: false, error: "Su expediente ya tiene un asesor asignado. Para cambiarlo, comuníquese con la oficina." };
+
+  const advisor = await findAdvisorByCode(input.code);
+  if (!advisor) {
+    await recordAttempt("advisor_link", ipHash, false);
+    return { ok: false, error: "El código de asesor no es válido. Revíselo e inténtelo de nuevo." };
+  }
+  // updateMany con advisorId null evita sobrescribir si dos pestañas lo intentan a la vez
+  const res = await db.applicationFile.updateMany({ where: { id: fileId, advisorId: null }, data: { advisorId: advisor.id } });
+  if (!res.count) return { ok: false, error: "Su expediente ya tiene un asesor asignado." };
+  await audit({ action: "file.assigned", actorType: "CLIENT", fileId, ipHash, details: { advisorId: advisor.id, via: "portal" } });
+  revalidatePath("/portal", "layout");
+  return { ok: true, advisorName: advisor.name };
 }

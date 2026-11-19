@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { db } from "@/lib/db";
 import { getSettings } from "@/lib/settings";
 import { ThemeToggle } from "@/components/shared/theme";
+import { fileScope } from "@/server/advisors";
 import { requireAdmin } from "@/server/guards";
 
 export const metadata: Metadata = { title: { default: "Panel", template: "%s · Panel de gestión" }, robots: { index: false } };
@@ -18,8 +19,8 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
   const admin = await requireAdmin();
   const [settings, submitted, unread] = await Promise.all([
     getSettings(),
-    db.applicationFile.count({ where: { status: "SUBMITTED" } }),
-    db.message.count({ where: { senderType: "CLIENT", readAt: null } }),
+    db.applicationFile.count({ where: { status: "SUBMITTED", ...fileScope(admin) } }),
+    db.message.count({ where: { senderType: "CLIENT", readAt: null, applicationFile: fileScope(admin) } }),
   ]);
   const badges = { submitted, unread };
   return (

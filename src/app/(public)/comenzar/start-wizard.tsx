@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowRight, Check, Copy, KeyRound, Loader2, Printer, ShieldCheck } from "lucide-react";
+import { ArrowRight, Check, Copy, KeyRound, Loader2, Printer, ShieldCheck, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
@@ -23,21 +23,23 @@ export function StartWizard({
   welcome,
   validityDays,
   hasSession,
+  initialAdvisor,
 }: {
   questions: { id: string; text: string }[];
   welcome: string;
   validityDays: number;
   hasSession: boolean;
+  initialAdvisor: { code: string; name: string } | null;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const [result, setResult] = useState<{ code: string; question: string } | null>(null);
+  const [result, setResult] = useState<{ code: string; question: string; advisorName: string | null } | null>(null);
   const [copied, setCopied] = useState(false);
   const [confirmedSaved, setConfirmedSaved] = useState(false);
 
   const form = useForm<FormIn, unknown, FormOut>({
     resolver: zodResolver(createFileSchema),
-    defaultValues: { surname: "", birthYear: "", securityQuestionId: "", securityAnswer: "", securityAnswerConfirm: "", acceptPrivacy: false as unknown as true },
+    defaultValues: { surname: "", birthYear: "", securityQuestionId: "", securityAnswer: "", securityAnswerConfirm: "", advisorCode: initialAdvisor?.code ?? "", acceptPrivacy: false as unknown as true },
   });
   const { errors } = form.formState;
 
@@ -48,7 +50,7 @@ export function StartWizard({
         toast.error(res.error);
         return;
       }
-      setResult({ code: res.code, question: res.question });
+      setResult({ code: res.code, question: res.question, advisorName: res.advisorName });
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
   });
@@ -69,6 +71,12 @@ export function StartWizard({
             <p className="text-muted-foreground">Su pregunta de seguridad:</p>
             <p className="font-medium">{result.question}</p>
           </div>
+          {result.advisorName && (
+            <p className="mt-3 text-left text-sm">
+              <span className="text-muted-foreground">Su asesor: </span>
+              <span className="font-medium">{result.advisorName}</span>
+            </p>
+          )}
           <p className="mt-4 text-left text-xs leading-relaxed text-muted-foreground">
             Para recuperar su formulario necesitará: este código, su primer apellido, su año de nacimiento y la respuesta a su
             pregunta de seguridad. Documento privado de preparación. No es el formulario DS-160 oficial.
@@ -167,6 +175,22 @@ export function StartWizard({
             </div>
           </div>
           <p className="text-xs text-muted-foreground">No distingue mayúsculas ni tildes. Elija una respuesta que recuerde con facilidad y que otros no conozcan.</p>
+        </fieldset>
+
+        <fieldset className="space-y-2 border-t pt-5">
+          <legend className="mb-1 flex items-center gap-2 font-semibold"><UserRound className="size-4 text-primary" /> Su asesor (opcional)</legend>
+          {initialAdvisor ? (
+            <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-sm text-emerald-900">
+              Su expediente quedará vinculado a <strong>{initialAdvisor.name}</strong> (código {initialAdvisor.code}).
+            </p>
+          ) : (
+            <>
+              <Label htmlFor="advisorCode">Código de su asesor</Label>
+              <Input id="advisorCode" autoComplete="off" autoCapitalize="characters" maxLength={20} placeholder="Ej.: K7M2QX" className="h-10 font-mono tracking-wider uppercase sm:max-w-xs" aria-invalid={!!errors.advisorCode} {...form.register("advisorCode")} />
+              <FieldError message={errors.advisorCode?.message} />
+              <p className="text-xs text-muted-foreground">Si un asesor le dio un código, escríbalo para que él reciba su expediente. Si no tiene, déjelo vacío.</p>
+            </>
+          )}
         </fieldset>
 
         <div className="space-y-2 border-t pt-5">

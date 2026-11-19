@@ -16,6 +16,8 @@ import { getSettings } from "@/lib/settings";
 import { STATUS_LABELS } from "@/lib/status";
 import { cn } from "@/lib/utils";
 import { getAdminFile } from "@/server/admin-file";
+import { requireAdmin } from "@/server/guards";
+import { ReassignAdvisor } from "@/components/admin/reassign-advisor";
 import type { FileStatus } from "@/generated/prisma/enums";
 
 export const metadata: Metadata = { title: "Expediente" };
@@ -32,10 +34,13 @@ function describeAudit(action: string, details: unknown): string | null {
 
 export default async function AdminFilePage(props: PageProps<"/admin/expedientes/[id]">) {
   const { id } = await props.params;
-  const data = await getAdminFile(id);
+  const me = await requireAdmin();
+  const data = await getAdminFile(id, me);
   if (!data) notFound();
   const { file, sections, answers, progress, name } = data;
   const settings = await getSettings();
+  const isAdmin = me.role === "ADMIN";
+  const panelUsers = isAdmin ? await db.adminUser.findMany({ where: { active: true }, orderBy: { name: "asc" }, select: { id: true, name: true } }) : [];
 
   // Al abrir el expediente, los mensajes del cliente quedan como leídos
   const unreadIds = file.messages.filter((m) => m.senderType === "CLIENT" && !m.readAt).map((m) => m.id);
@@ -115,6 +120,14 @@ export default async function AdminFilePage(props: PageProps<"/admin/expedientes
         <aside className="space-y-4">
           <section className="rounded-2xl border bg-card p-5 shadow-sm">
             <h2 className="text-sm font-semibold">Información general</h2>
+            <div className="mt-3 space-y-1.5">
+              <p className="text-xs font-medium text-muted-foreground">Asesor asignado</p>
+              {isAdmin ? (
+                <ReassignAdvisor fileId={file.id} current={file.advisorId} users={panelUsers} />
+              ) : (
+                <p className="text-sm font-medium">{file.advisor?.name ?? "Sin asignar"}</p>
+              )}
+            </div>
             <div className="mt-3">
               <div className="flex justify-between text-sm"><span className="text-muted-foreground">Progreso</span><span className="font-semibold">{progress.percent}%</span></div>
               <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-primary" style={{ width: `${progress.percent}%` }} /></div>

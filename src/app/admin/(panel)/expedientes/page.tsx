@@ -13,6 +13,8 @@ import { formatDate, formatDateTime, nowMs } from "@/lib/format";
 import { normalizeCode } from "@/lib/normalize";
 import { ALL_STATUSES, STATUS_LABELS } from "@/lib/status";
 import { cn } from "@/lib/utils";
+import { fileScope } from "@/server/advisors";
+import { requireAdmin } from "@/server/guards";
 import { sweepExpired } from "@/server/files";
 
 export const metadata: Metadata = { title: "Expedientes" };
@@ -36,6 +38,8 @@ function parseDay(v: string, endOfDay = false) {
 }
 
 export default async function FilesPage(props: PageProps<"/admin/expedientes">) {
+  const me = await requireAdmin();
+  const isAdmin = me.role === "ADMIN";
   await sweepExpired();
   const sp = await props.searchParams;
   const q = str(sp.q).trim().slice(0, 80);
@@ -45,8 +49,13 @@ export default async function FilesPage(props: PageProps<"/admin/expedientes">) 
   const hasta = str(sp.hasta);
   const orden = (str(sp.orden) || "recientes") as keyof typeof ORDERS;
   const page = Math.max(1, Number.parseInt(str(sp.p) || "1", 10) || 1);
+  const asesor = isAdmin ? str(sp.asesor) : "";
 
   const where: Prisma.ApplicationFileWhereInput = {};
+  // Alcance: el asesor solo ve los suyos; el administrador puede filtrar por asesor
+  Object.assign(where, fileScope(me));
+  if (asesor === "sin") where.advisorId = null;
+  else if (asesor) where.advisorId = asesor;
   if (estado && ALL_STATUSES.includes(estado)) where.status = estado;
   if (q) {
     const terms = q.split(/\s+/).filter(Boolean);
@@ -72,16 +81,17 @@ export default async function FilesPage(props: PageProps<"/admin/expedientes">) 
       orderBy: [orderBy, { createdAt: "desc" }],
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
-      include: { applicant: true, _count: { select: { messages: { where: { senderType: "CLIENT", readAt: null } } } } },
+      include: { applicant: true, advisor: { select: { name: true } }, _count: { select: { messages: { where: { senderType: "CLIENT", readAt: null } } } } },
     }),
   ]);
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const now = nowMs();
-  const hasFilters = !!(q || estado || desde || hasta);
+  const hasFilters = !!(q || estado || desde || hasta || asesor);
+  const advisors = isAdmin ? await db.adminUser.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, active: true } }) : [];
 
   const pageHref = (p: number) => {
     const params = new URLSearchParams();
-    for (const [k, v] of Object.entries({ q, estado, campo, desde, hasta, orden })) if (v) params.set(k, v);
+    for (const [k, v] of Object.entries({ q, estado, campo, desde, hasta, orden, asesor })) if (v) params.set(k, v);
     params.set("p", String(p));
     return `/admin/expedientes?${params.toString()}`;
   };
@@ -91,7 +101,7 @@ export default async function FilesPage(props: PageProps<"/admin/expedientes">) 
       <PageHeader title="Expedientes" description={`${total} expediente${total === 1 ? "" : "s"}${hasFilters ? " con los filtros aplicados" : ""}.`} />
 
       {/* Filtros */}
-      <form className="mb-4 grid gap-3 rounded-2xl border bg-card p-4 shadow-sm md:grid-cols-2 xl:grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_auto]" role="search">
+      <form className="mb-4 grid gap-3 rounded-2xl border bg-card p-4 shadow-sm md:grid-cols-2 xl:grid-cols-4" role="search">
         <div className="relative">
           <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input name="q" defaultValue={q} placeholder="Código, nombre o apellido" className="h-10 bg-card pl-9" aria-label="Buscar" />
@@ -100,6 +110,13 @@ export default async function FilesPage(props: PageProps<"/admin/expedientes">) 
           <option value="">Todos los estados</option>
           {ALL_STATUSES.map((s) => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
         </NativeSelect>
+        {isAdmin && (
+          <NativeSelect name="asesor" defaultValue={asesor} aria-label="Asesor">
+            <option value="">Todos los asesores</option>
+            <option value="sin">Sin asignar</option>
+            {advisors.map((a) => <option key={a.id} value={a.id}>{a.name}{a.active ? "" : " (inactivo)"}</option>)}
+          </NativeSelect>
+        )}
         <NativeSelect name="campo" defaultValue={campo} aria-label="Filtrar fecha por">
           <option value="creado">Fecha de creación</option>
           <option value="inicio">Fecha de inicio</option>
@@ -133,6 +150,7 @@ export default async function FilesPage(props: PageProps<"/admin/expedientes">) 
               <TableHead>Inicio</TableHead>
               <TableHead>Vence</TableHead>
               <TableHead>Estado</TableHead>
+              {isAdmin && <TableHead>Asesor</TableHead>}
               <TableHead>Última actividad</TableHead>
               <TableHead className="text-center">Msj.</TableHead>
               <TableHead className="text-right">Acciones</TableHead>
@@ -141,7 +159,7 @@ export default async function FilesPage(props: PageProps<"/admin/expedientes">) 
           <TableBody>
             {files.length === 0 && (
               <TableRow>
-                <TableCell colSpan={10} className="py-14 text-center text-muted-foreground">No se encontraron expedientes.</TableCell>
+                <TableCell colSpan={isAdmin ? 11 : 10} className="py-14 text-center text-muted-foreground">No se encontraron expedientes.</TableCell>
               </TableRow>
             )}
             {files.map((f) => {
@@ -156,6 +174,7 @@ export default async function FilesPage(props: PageProps<"/admin/expedientes">) 
                   <TableCell className="text-xs whitespace-nowrap">{formatDate(f.startedAt)}</TableCell>
                   <TableCell className={cn("text-xs whitespace-nowrap", expiringSoon && "font-semibold text-amber-700")}>{formatDate(f.expiresAt)}</TableCell>
                   <TableCell><StatusBadge status={f.status} /></TableCell>
+                  {isAdmin && <TableCell className="text-sm whitespace-nowrap">{f.advisor?.name ?? <span className="text-amber-700">Sin asignar</span>}</TableCell>}
                   <TableCell className="text-xs whitespace-nowrap text-muted-foreground">{formatDateTime(f.lastActivityAt)}</TableCell>
                   <TableCell className="text-center">
                     {f._count.messages > 0 ? <span className="rounded-full bg-primary px-1.5 text-[11px] font-semibold text-primary-foreground">{f._count.messages}</span> : <span className="text-muted-foreground">—</span>}
