@@ -95,7 +95,7 @@ export default async function PortalHome() {
         <aside className="space-y-4">
           <div className="rounded-2xl border bg-white p-5 shadow-sm">
             <h2 className="text-sm font-semibold">Vigencia</h2>
-            <div className="mt-2"><ExpiryCountdown expiresAt={file.expiresAt?.toISOString() ?? null} warningDays={settings.expiryWarningDays} /></div>
+            <div className="mt-2"><ExpiryCountdown paused={["SUBMITTED", "IN_REVIEW", "REVIEWED"].includes(file.status)} expiresAt={file.expiresAt?.toISOString() ?? null} warningDays={settings.expiryWarningDays} /></div>
             <dl className="mt-4 space-y-2 text-sm">
               <div className="flex justify-between gap-2"><dt className="text-muted-foreground">Creado</dt><dd>{formatDateTime(file.createdAt)}</dd></div>
               <div className="flex justify-between gap-2"><dt className="text-muted-foreground">Iniciado</dt><dd>{formatDateTime(file.startedAt)}</dd></div>

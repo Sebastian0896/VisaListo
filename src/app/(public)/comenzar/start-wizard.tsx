@@ -18,7 +18,17 @@ import { createFileSchema } from "@/validation/answers";
 type FormIn = z.input<typeof createFileSchema>;
 type FormOut = z.output<typeof createFileSchema>;
 
-export function StartWizard({ questions, welcome, validityDays }: { questions: { id: string; text: string }[]; welcome: string; validityDays: number }) {
+export function StartWizard({
+  questions,
+  welcome,
+  validityDays,
+  hasSession,
+}: {
+  questions: { id: string; text: string }[];
+  welcome: string;
+  validityDays: number;
+  hasSession: boolean;
+}) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [result, setResult] = useState<{ code: string; question: string } | null>(null);
@@ -108,6 +118,13 @@ export function StartWizard({ questions, welcome, validityDays }: { questions: {
         <h1 className="mt-2 text-3xl font-semibold tracking-tight">Comenzar formulario</h1>
         <p className="mt-2 text-muted-foreground">{welcome}</p>
       </div>
+
+      {hasSession && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-950">
+          <span>Ya tiene un expediente abierto en este navegador.</span>
+          <Link href="/portal" className="font-medium text-primary underline underline-offset-2">Ir a mi expediente</Link>
+        </div>
+      )}
 
       <form onSubmit={onSubmit} className="space-y-6 rounded-2xl border bg-white p-5 shadow-sm sm:p-6" noValidate>
         <fieldset className="space-y-4">

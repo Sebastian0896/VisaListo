@@ -31,7 +31,7 @@ export default async function PortalLayout({ children }: LayoutProps<"/portal">)
           <div className="flex items-center gap-3">
             <div className="hidden text-right sm:block">
               <p className="font-mono text-xs font-medium tracking-wider text-muted-foreground">{file.uniqueCode}</p>
-              <ExpiryCountdown expiresAt={file.expiresAt?.toISOString() ?? null} warningDays={settings.expiryWarningDays} compact />
+              <ExpiryCountdown paused={["SUBMITTED", "IN_REVIEW", "REVIEWED"].includes(file.status)} expiresAt={file.expiresAt?.toISOString() ?? null} warningDays={settings.expiryWarningDays} compact />
             </div>
             <StatusBadge status={file.status} />
             <form action={logoutClientAction}>

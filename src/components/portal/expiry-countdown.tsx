@@ -14,8 +14,27 @@ const subscribe = (cb: () => void) => {
 const getSnapshot = () => Math.floor(Date.now() / TICK) * TICK;
 const getServerSnapshot = () => null;
 
-export function ExpiryCountdown({ expiresAt, warningDays, compact = false }: { expiresAt: string | null; warningDays: number; compact?: boolean }) {
+export function ExpiryCountdown({
+  expiresAt,
+  warningDays,
+  compact = false,
+  paused = false,
+}: {
+  expiresAt: string | null;
+  warningDays: number;
+  compact?: boolean;
+  /** Formulario enviado / en revisión: la vigencia no corre */
+  paused?: boolean;
+}) {
   const now = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+
+  if (paused) {
+    return (
+      <span className={cn("inline-flex items-center gap-1.5 text-muted-foreground", compact ? "text-xs" : "text-sm")}>
+        <Clock className="size-3.5" /> En manos de su asesor
+      </span>
+    );
+  }
 
   if (!expiresAt) {
     return (
