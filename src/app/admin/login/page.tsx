@@ -12,7 +12,7 @@ export default async function AdminLoginPage() {
   if (await getAdmin()) redirect("/admin");
   const setup = await setupStatus();
   return (
-    <div className="grid min-h-screen place-items-center bg-[radial-gradient(70%_60%_at_50%_0%,oklch(0.93_0.03_255),transparent)] px-4 py-10">
+    <div className="grid min-h-screen place-items-center bg-[radial-gradient(70%_60%_at_50%_0%,var(--accent),transparent)] px-4 py-10">
       <div className="w-full max-w-sm space-y-6">
         <div className="flex flex-col items-center text-center">
           <BrandMark className="size-11" />

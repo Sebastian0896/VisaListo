@@ -47,7 +47,7 @@ export function SidebarNav({
             <item.icon className="size-4" />
             <span className="flex-1">{item.label}</span>
             {badge > 0 && (
-              <span className="rounded-full bg-white px-1.5 text-[11px] font-semibold text-sidebar tabular-nums" title={item.badgeKey === "submitted" ? "Enviados sin revisar" : "Mensajes sin leer"}>
+              <span className="rounded-full bg-sidebar-primary px-1.5 text-[11px] font-semibold text-sidebar-primary-foreground tabular-nums" title={item.badgeKey === "submitted" ? "Enviados sin revisar" : "Mensajes sin leer"}>
                 {badge}
               </span>
             )}

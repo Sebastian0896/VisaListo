@@ -23,11 +23,11 @@ export function MessageThread({ messages, viewer }: { messages: ThreadMessage[];
         const who = m.senderType === "ADMIN" ? (viewer === "ADMIN" ? m.authorName || "Asesor" : "Su asesor") : viewer === "CLIENT" ? "Usted" : "Solicitante";
         return (
           <li key={m.id} className={cn("flex", mine ? "justify-end" : "justify-start")}>
-            <div className={cn("max-w-[85%] rounded-2xl px-4 py-3 text-sm shadow-sm sm:max-w-[75%]", mine ? "rounded-br-md bg-primary text-primary-foreground" : "rounded-bl-md border bg-white")}>
+            <div className={cn("max-w-[85%] rounded-2xl px-4 py-3 text-sm shadow-sm sm:max-w-[75%]", mine ? "rounded-br-md bg-primary text-primary-foreground" : "rounded-bl-md border bg-card")}>
               <div className={cn("mb-1 flex flex-wrap items-center gap-x-2 text-xs", mine ? "text-primary-foreground/70" : "text-muted-foreground")}>
                 <span className="font-semibold">{who}</span>
                 <span>{formatDateTime(m.createdAt)}</span>
-                {m.isSubmissionNote && <span className={cn("rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase", mine ? "bg-white/15" : "bg-secondary text-primary")}>Al enviar el formulario</span>}
+                {m.isSubmissionNote && <span className={cn("rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase", mine ? "bg-primary-foreground/15" : "bg-secondary text-primary")}>Al enviar el formulario</span>}
               </div>
               <p className="leading-relaxed whitespace-pre-line">{m.message}</p>
               {mine && <p className={cn("mt-1 text-right text-[10px]", "text-primary-foreground/60")}>{m.readAt ? "Leído" : "Enviado"}</p>}

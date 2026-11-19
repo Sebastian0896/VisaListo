@@ -18,7 +18,7 @@ type Props = {
   showRequiredHint?: boolean;
 };
 
-const inputCls = "h-10 bg-white";
+const inputCls = "h-10 bg-card";
 
 export function QuestionField({ question: q, control, error, disabled, showRequiredHint }: Props) {
   const id = `q-${q.key}`;
@@ -53,7 +53,7 @@ export function QuestionField({ question: q, control, error, disabled, showRequi
             };
             switch (q.type) {
               case "TEXTAREA":
-                return <Textarea {...common} ref={field.ref} rows={q.config.rows ?? 3} maxLength={q.config.maxLength ?? 4000} placeholder={q.placeholder ?? undefined} onChange={(e) => field.onChange(e.target.value)} className="min-h-20 bg-white" />;
+                return <Textarea {...common} ref={field.ref} rows={q.config.rows ?? 3} maxLength={q.config.maxLength ?? 4000} placeholder={q.placeholder ?? undefined} onChange={(e) => field.onChange(e.target.value)} className="min-h-20 bg-card" />;
               case "DATE":
                 return <Input {...common} ref={field.ref} type="date" onChange={(e) => field.onChange(e.target.value)} className={cn(inputCls, "w-full sm:w-56")} />;
               case "NUMBER":
@@ -124,7 +124,7 @@ function RadioCards({
           <label
             key={o.value}
             className={cn(
-              "flex cursor-pointer items-center gap-2.5 rounded-lg border bg-white px-4 py-2.5 text-sm transition select-none has-[:focus-visible]:ring-3 has-[:focus-visible]:ring-ring/50",
+              "flex cursor-pointer items-center gap-2.5 rounded-lg border bg-card px-4 py-2.5 text-sm transition select-none has-[:focus-visible]:ring-3 has-[:focus-visible]:ring-ring/50",
               checked ? "border-primary bg-secondary font-medium text-primary" : "hover:border-foreground/25",
               compact ? "min-w-24" : "",
               disabled && "cursor-not-allowed opacity-60",
@@ -151,9 +151,9 @@ function GroupField({ question: q, control, disabled }: { question: ClientQuesti
   const empty = Object.fromEntries(defs.map((f) => [f.key, ""]));
   return (
     <div className="space-y-3">
-      {fields.length === 0 && <p className="rounded-lg border border-dashed bg-white/60 px-4 py-3 text-sm text-muted-foreground">No hay registros agregados.</p>}
+      {fields.length === 0 && <p className="rounded-lg border border-dashed bg-card/60 px-4 py-3 text-sm text-muted-foreground">No hay registros agregados.</p>}
       {fields.map((row, i) => (
-        <fieldset key={row.id} className="print-avoid-break rounded-xl border bg-white p-4">
+        <fieldset key={row.id} className="print-avoid-break rounded-xl border bg-card p-4">
           <div className="mb-3 flex items-center justify-between">
             <legend className="text-sm font-semibold text-muted-foreground">Registro {i + 1}</legend>
             {!disabled && (

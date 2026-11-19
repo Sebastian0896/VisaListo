@@ -72,11 +72,11 @@ export function QuestionEditor({ question: q, draft }: { question: Q; draft: boo
             <div className="grid gap-3 sm:grid-cols-[1fr_6rem]">
               <div className="space-y-1.5">
                 <Label>Texto de la pregunta</Label>
-                <Input className="h-9 bg-white" {...form.register("label")} />
+                <Input className="h-9 bg-card" {...form.register("label")} />
               </div>
               <div className="space-y-1.5">
                 <Label>Orden</Label>
-                <Input type="number" className="h-9 bg-white" {...form.register("order")} />
+                <Input type="number" className="h-9 bg-card" {...form.register("order")} />
               </div>
               <div className="flex gap-5 text-sm sm:col-span-2">
                 <label className="flex items-center gap-2"><input type="checkbox" className="size-4 accent-[var(--primary)]" {...form.register("required")} /> Obligatoria</label>
@@ -85,7 +85,7 @@ export function QuestionEditor({ question: q, draft }: { question: Q; draft: boo
               {hasOptions && (
                 <div className="space-y-1.5 sm:col-span-2">
                   <Label>Opciones (una por línea: valor|Etiqueta)</Label>
-                  <Textarea rows={5} className="bg-white font-mono text-xs" {...form.register("options")} />
+                  <Textarea rows={5} className="bg-card font-mono text-xs" {...form.register("options")} />
                   <p className="text-xs text-muted-foreground">No cambie los valores de opciones existentes si ya hay respuestas guardadas con ellos.</p>
                 </div>
               )}
@@ -94,19 +94,19 @@ export function QuestionEditor({ question: q, draft }: { question: Q; draft: boo
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-1.5 sm:col-span-2">
               <Label>Orientación</Label>
-              <Textarea rows={2} className="bg-white" {...form.register("guidance")} />
+              <Textarea rows={2} className="bg-card" {...form.register("guidance")} />
             </div>
             <div className="space-y-1.5">
               <Label>Ejemplo</Label>
-              <Textarea rows={2} className="bg-white" {...form.register("example")} />
+              <Textarea rows={2} className="bg-card" {...form.register("example")} />
             </div>
             <div className="space-y-1.5">
               <Label>Cuándo no aplica</Label>
-              <Textarea rows={2} className="bg-white" {...form.register("notApplicable")} />
+              <Textarea rows={2} className="bg-card" {...form.register("notApplicable")} />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
               <Label>Advertencia</Label>
-              <Textarea rows={2} className="bg-white" {...form.register("warning")} />
+              <Textarea rows={2} className="bg-card" {...form.register("warning")} />
             </div>
           </div>
           <Button type="submit" size="sm" disabled={pending}>{pending ? <Loader2 className="animate-spin" /> : <Save />} Guardar</Button>
@@ -145,8 +145,8 @@ export function AddQuestion({ sectionId }: { sectionId: string }) {
       )}
     >
       <div className="grid gap-3 sm:grid-cols-3">
-        <div className="space-y-1.5"><Label>Clave interna</Label><Input className="h-9 bg-white font-mono" placeholder="ej. hobby_details" {...form.register("key")} /></div>
-        <div className="space-y-1.5 sm:col-span-2"><Label>Texto de la pregunta</Label><Input className="h-9 bg-white" {...form.register("label")} /></div>
+        <div className="space-y-1.5"><Label>Clave interna</Label><Input className="h-9 bg-card font-mono" placeholder="ej. hobby_details" {...form.register("key")} /></div>
+        <div className="space-y-1.5 sm:col-span-2"><Label>Texto de la pregunta</Label><Input className="h-9 bg-card" {...form.register("label")} /></div>
         <div className="space-y-1.5">
           <Label>Tipo</Label>
           <NativeSelect className="h-9" {...form.register("type")}>
@@ -154,9 +154,9 @@ export function AddQuestion({ sectionId }: { sectionId: string }) {
           </NativeSelect>
         </div>
         <label className="flex items-end gap-2 pb-2 text-sm"><input type="checkbox" className="size-4 accent-[var(--primary)]" {...form.register("required")} /> Obligatoria</label>
-        <div className="space-y-1.5 sm:col-span-3"><Label>Orientación</Label><Textarea rows={2} className="bg-white" {...form.register("guidance")} /></div>
+        <div className="space-y-1.5 sm:col-span-3"><Label>Orientación</Label><Textarea rows={2} className="bg-card" {...form.register("guidance")} /></div>
         {(type === "SELECT" || type === "RADIO") && (
-          <div className="space-y-1.5 sm:col-span-3"><Label>Opciones (una por línea: valor|Etiqueta)</Label><Textarea rows={4} className="bg-white font-mono text-xs" {...form.register("options")} /></div>
+          <div className="space-y-1.5 sm:col-span-3"><Label>Opciones (una por línea: valor|Etiqueta)</Label><Textarea rows={4} className="bg-card font-mono text-xs" {...form.register("options")} /></div>
         )}
       </div>
       <div className="flex gap-2">

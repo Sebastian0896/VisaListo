@@ -25,7 +25,7 @@ export function NoteForm({ fileId }: { fileId: string }) {
         });
       }}
     >
-      <Textarea rows={3} value={text} onChange={(e) => setText(e.target.value)} placeholder="Observaciones, dudas para consultar, pendientes…" className="bg-white" aria-label="Nueva nota interna" />
+      <Textarea rows={3} value={text} onChange={(e) => setText(e.target.value)} placeholder="Observaciones, dudas para consultar, pendientes…" className="bg-card" aria-label="Nueva nota interna" />
       <Button type="submit" size="sm" variant="outline" disabled={pending || text.trim().length < 2}>
         {pending ? <Loader2 className="animate-spin" /> : <Plus />} Agregar nota
       </Button>

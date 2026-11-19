@@ -46,7 +46,7 @@ export function SubmitPanel({ canSubmit, canEdit, status, pendingCount }: { canS
     });
 
   return (
-    <div className="space-y-5 rounded-2xl border-2 border-primary/15 bg-white p-5 shadow-sm sm:p-6">
+    <div className="space-y-5 rounded-2xl border-2 border-primary/15 bg-card p-5 shadow-sm sm:p-6">
       <h2 className="text-lg font-semibold">Enviar a su asesor</h2>
       {!canSubmit && (
         <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-950">
@@ -64,7 +64,7 @@ export function SubmitPanel({ canSubmit, canEdit, status, pendingCount }: { canS
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Ej.: Tengo algunas dudas sobre la información laboral que proporcioné. Me gustaría que la revisara antes de continuar."
-          className="bg-white"
+          className="bg-card"
         />
         <p className="text-xs text-muted-foreground">Su asesor lo verá junto con el formulario y podrá responderle en «Mensajes».</p>
       </div>

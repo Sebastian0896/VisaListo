@@ -4,6 +4,7 @@ import { DisclaimerBar, DISCLAIMER_SHORT } from "@/components/shared/disclaimer"
 import { WhatsAppFloat } from "@/components/shared/whatsapp-button";
 import { buttonVariants } from "@/components/ui/button";
 import { getSettings, whatsappLink } from "@/lib/settings";
+import { ThemeToggle } from "@/components/shared/theme";
 import { cn } from "@/lib/utils";
 
 export default async function PublicLayout({ children }: LayoutProps<"/">) {
@@ -21,13 +22,14 @@ export default async function PublicLayout({ children }: LayoutProps<"/">) {
             <Link href="/#contacto" className="rounded-md px-3 py-2 text-muted-foreground hover:text-foreground">Contacto</Link>
           </nav>
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <Link href="/recuperar" className={cn(buttonVariants({ variant: "ghost" }), "hidden sm:inline-flex")}>Recuperar</Link>
             <Link href="/comenzar" className={buttonVariants()}>Comenzar</Link>
           </div>
         </div>
       </header>
       <main className="flex-1">{children}</main>
-      <footer className="border-t bg-white">
+      <footer className="border-t bg-card">
         <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 md:grid-cols-[1.4fr_1fr_1fr]">
           <div className="space-y-3">
             <Brand name={s.platformName} logoUrl={s.logoUrl} />

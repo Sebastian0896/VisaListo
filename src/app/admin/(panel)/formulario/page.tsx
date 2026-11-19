@@ -37,7 +37,7 @@ export default async function TemplatesPage() {
       </div>
       <div className="space-y-3">
         {versions.map((v) => (
-          <div key={v.id} className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border bg-white p-5 shadow-sm">
+          <div key={v.id} className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border bg-card p-5 shadow-sm">
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="font-semibold">{v.template.name} · versión {v.version}</h2>

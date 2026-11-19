@@ -31,7 +31,7 @@ export function SetupForm({ tokenRequired, tokenConfigured }: { tokenRequired: b
 
   return (
     <form
-      className="space-y-4 rounded-2xl border bg-white p-6 shadow-sm"
+      className="space-y-4 rounded-2xl border bg-card p-6 shadow-sm"
       onSubmit={form.handleSubmit((v) => {
         setError(null);
         startTransition(async () => {
@@ -49,25 +49,25 @@ export function SetupForm({ tokenRequired, tokenConfigured }: { tokenRequired: b
       {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
       <div className="space-y-1.5">
         <Label htmlFor="su-name">Nombre</Label>
-        <Input id="su-name" autoComplete="name" className="h-10 bg-white" {...form.register("name")} />
+        <Input id="su-name" autoComplete="name" className="h-10 bg-card" {...form.register("name")} />
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="su-email">Correo</Label>
-        <Input id="su-email" type="email" autoComplete="username" className="h-10 bg-white" {...form.register("email")} />
+        <Input id="su-email" type="email" autoComplete="username" className="h-10 bg-card" {...form.register("email")} />
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="su-pass">Contraseña</Label>
-        <Input id="su-pass" type="password" autoComplete="new-password" className="h-10 bg-white" {...form.register("password")} />
+        <Input id="su-pass" type="password" autoComplete="new-password" className="h-10 bg-card" {...form.register("password")} />
         <p className="text-xs text-muted-foreground">{PASSWORD_HINT}</p>
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="su-confirm">Repita la contraseña</Label>
-        <Input id="su-confirm" type="password" autoComplete="new-password" className="h-10 bg-white" {...form.register("confirmPassword")} />
+        <Input id="su-confirm" type="password" autoComplete="new-password" className="h-10 bg-card" {...form.register("confirmPassword")} />
       </div>
       {tokenRequired && (
         <div className="space-y-1.5">
           <Label htmlFor="su-token">Código de instalación</Label>
-          <Input id="su-token" type="password" autoComplete="off" className="h-10 bg-white" {...form.register("token")} />
+          <Input id="su-token" type="password" autoComplete="off" className="h-10 bg-card" {...form.register("token")} />
           <p className="text-xs text-muted-foreground">El valor de ADMIN_SETUP_TOKEN configurado en el servidor.</p>
         </div>
       )}

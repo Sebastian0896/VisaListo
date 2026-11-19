@@ -37,7 +37,7 @@ export default async function AuditPage(props: PageProps<"/admin/auditoria">) {
         </NativeSelect>
         <Button type="submit" className="h-10">Filtrar</Button>
       </form>
-      <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl border bg-card shadow-sm">
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/50">

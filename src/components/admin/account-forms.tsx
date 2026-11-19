@@ -37,11 +37,11 @@ export function AccountForm({ name, email }: { name: string; email: string }) {
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="acc-name">Nombre</Label>
-          <Input id="acc-name" className="h-10 bg-white" autoComplete="name" {...form.register("name")} />
+          <Input id="acc-name" className="h-10 bg-card" autoComplete="name" {...form.register("name")} />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="acc-email">Correo de acceso</Label>
-          <Input id="acc-email" type="email" className="h-10 bg-white" autoComplete="username" {...form.register("email")} />
+          <Input id="acc-email" type="email" className="h-10 bg-card" autoComplete="username" {...form.register("email")} />
         </div>
       </div>
 
@@ -51,11 +51,11 @@ export function AccountForm({ name, email }: { name: string; email: string }) {
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="acc-new">Nueva contraseña</Label>
-            <Input id="acc-new" type="password" className="h-10 bg-white" autoComplete="new-password" {...form.register("newPassword")} />
+            <Input id="acc-new" type="password" className="h-10 bg-card" autoComplete="new-password" {...form.register("newPassword")} />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="acc-confirm">Repita la nueva contraseña</Label>
-            <Input id="acc-confirm" type="password" className="h-10 bg-white" autoComplete="new-password" {...form.register("confirmPassword")} />
+            <Input id="acc-confirm" type="password" className="h-10 bg-card" autoComplete="new-password" {...form.register("confirmPassword")} />
           </div>
         </div>
       </fieldset>
@@ -63,7 +63,7 @@ export function AccountForm({ name, email }: { name: string; email: string }) {
       <div className="flex flex-wrap items-end gap-3 border-t pt-4">
         <div className="min-w-56 flex-1 space-y-1.5 sm:max-w-xs">
           <Label htmlFor="acc-current">Contraseña actual (obligatoria para guardar)</Label>
-          <Input id="acc-current" type="password" className="h-10 bg-white" autoComplete="current-password" {...form.register("currentPassword")} />
+          <Input id="acc-current" type="password" className="h-10 bg-card" autoComplete="current-password" {...form.register("currentPassword")} />
         </div>
         <Button type="submit" className="h-10 px-4" disabled={pending}>
           {pending ? <Loader2 className="animate-spin" /> : <Save />} Guardar cuenta
@@ -91,7 +91,7 @@ export function UsersManager({ users, currentId }: { users: UserRow[]; currentId
 
   return (
     <div className="space-y-4">
-      <ul className="divide-y rounded-xl border bg-white">
+      <ul className="divide-y rounded-xl border bg-card">
         {users.map((u) => {
           const me = u.id === currentId;
           return (
@@ -142,9 +142,9 @@ export function UsersManager({ users, currentId }: { users: UserRow[]; currentId
           )}
         >
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="space-y-1.5"><Label htmlFor="nu-name">Nombre</Label><Input id="nu-name" className="h-9 bg-white" {...form.register("name")} /></div>
-            <div className="space-y-1.5"><Label htmlFor="nu-email">Correo</Label><Input id="nu-email" type="email" className="h-9 bg-white" autoComplete="off" {...form.register("email")} /></div>
-            <div className="space-y-1.5"><Label htmlFor="nu-pass">Contraseña inicial</Label><Input id="nu-pass" type="password" className="h-9 bg-white" autoComplete="new-password" {...form.register("password")} /></div>
+            <div className="space-y-1.5"><Label htmlFor="nu-name">Nombre</Label><Input id="nu-name" className="h-9 bg-card" {...form.register("name")} /></div>
+            <div className="space-y-1.5"><Label htmlFor="nu-email">Correo</Label><Input id="nu-email" type="email" className="h-9 bg-card" autoComplete="off" {...form.register("email")} /></div>
+            <div className="space-y-1.5"><Label htmlFor="nu-pass">Contraseña inicial</Label><Input id="nu-pass" type="password" className="h-9 bg-card" autoComplete="new-password" {...form.register("password")} /></div>
             <div className="space-y-1.5">
               <Label htmlFor="nu-role">Rol</Label>
               <NativeSelect id="nu-role" className="h-9" {...form.register("role")}>

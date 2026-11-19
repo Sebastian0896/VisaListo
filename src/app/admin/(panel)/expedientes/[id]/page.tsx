@@ -67,7 +67,7 @@ export default async function AdminFilePage(props: PageProps<"/admin/expedientes
         </a>
       )}
       {submissionNote && (
-        <div className="mb-4 rounded-xl border bg-white p-4 text-sm shadow-sm">
+        <div className="mb-4 rounded-xl border bg-card p-4 text-sm shadow-sm">
           <p className="text-xs font-semibold text-muted-foreground uppercase">Mensaje al enviar el formulario · {formatDateTime(submissionNote.createdAt)}</p>
           <p className="mt-1 whitespace-pre-line">{submissionNote.message}</p>
         </div>
@@ -84,7 +84,7 @@ export default async function AdminFilePage(props: PageProps<"/admin/expedientes
             {sections.map((s) => {
               const p = progress.perSection.find((x) => x.key === s.key)!;
               return (
-                <details key={s.key} className="group rounded-2xl border bg-white shadow-sm" open={p.answeredCount > 0}>
+                <details key={s.key} className="group rounded-2xl border bg-card shadow-sm" open={p.answeredCount > 0}>
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-3.5">
                     <span className="flex items-center gap-2.5">
                       {p.completed ? <CheckCircle2 className="size-5 text-emerald-600" /> : <CircleAlert className="size-5 text-amber-600" />}
@@ -101,7 +101,7 @@ export default async function AdminFilePage(props: PageProps<"/admin/expedientes
           </section>
 
           {/* Conversación */}
-          <section id="mensajes" className="scroll-mt-20 rounded-2xl border bg-white shadow-sm">
+          <section id="mensajes" className="scroll-mt-20 rounded-2xl border bg-card shadow-sm">
             <h2 className="border-b px-5 py-3.5 font-semibold">Conversación con el solicitante</h2>
             <div className="max-h-[32rem] overflow-y-auto bg-muted/30 p-4 sm:p-5">
               <MessageThread messages={file.messages.map((m) => ({ ...m, authorName: m.adminUser?.name }))} viewer="ADMIN" />
@@ -113,7 +113,7 @@ export default async function AdminFilePage(props: PageProps<"/admin/expedientes
         </div>
 
         <aside className="space-y-4">
-          <section className="rounded-2xl border bg-white p-5 shadow-sm">
+          <section className="rounded-2xl border bg-card p-5 shadow-sm">
             <h2 className="text-sm font-semibold">Información general</h2>
             <div className="mt-3">
               <div className="flex justify-between text-sm"><span className="text-muted-foreground">Progreso</span><span className="font-semibold">{progress.percent}%</span></div>
@@ -151,7 +151,7 @@ export default async function AdminFilePage(props: PageProps<"/admin/expedientes
             <div className="mt-3"><NoteForm fileId={file.id} /></div>
             <ul className="mt-4 space-y-3">
               {file.notes.map((n) => (
-                <li key={n.id} className="rounded-lg border bg-white p-3 text-sm">
+                <li key={n.id} className="rounded-lg border bg-card p-3 text-sm">
                   <p className="whitespace-pre-line">{n.body}</p>
                   <p className="mt-1.5 text-xs text-muted-foreground">{n.adminUser?.name ?? "Asesor"} · {formatDateTime(n.createdAt)}</p>
                 </li>
@@ -160,7 +160,7 @@ export default async function AdminFilePage(props: PageProps<"/admin/expedientes
           </section>
 
           {file.reviews.length > 0 && (
-            <section className="rounded-2xl border bg-white p-5 shadow-sm">
+            <section className="rounded-2xl border bg-card p-5 shadow-sm">
               <h2 className="text-sm font-semibold">Revisiones</h2>
               <ul className="mt-3 space-y-2.5 text-sm">
                 {file.reviews.map((r) => (
@@ -174,7 +174,7 @@ export default async function AdminFilePage(props: PageProps<"/admin/expedientes
             </section>
           )}
 
-          <section className="rounded-2xl border bg-white p-5 shadow-sm">
+          <section className="rounded-2xl border bg-card p-5 shadow-sm">
             <h2 className="text-sm font-semibold">Historial de actividad</h2>
             <ol className="mt-3 space-y-3">
               {file.auditLogs.map((l) => {

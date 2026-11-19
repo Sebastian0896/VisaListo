@@ -29,7 +29,7 @@ export default async function AdminMessagesPage() {
   return (
     <div className="mx-auto max-w-5xl">
       <PageHeader title="Mensajes" description="Conversaciones con los solicitantes. Las no leídas aparecen resaltadas." />
-      <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl border bg-card shadow-sm">
         {threads.length === 0 && (
           <div className="flex flex-col items-center gap-2 py-16 text-center text-muted-foreground">
             <MessageSquare className="size-8 opacity-40" />

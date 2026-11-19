@@ -91,10 +91,10 @@ export default async function FilesPage(props: PageProps<"/admin/expedientes">) 
       <PageHeader title="Expedientes" description={`${total} expediente${total === 1 ? "" : "s"}${hasFilters ? " con los filtros aplicados" : ""}.`} />
 
       {/* Filtros */}
-      <form className="mb-4 grid gap-3 rounded-2xl border bg-white p-4 shadow-sm md:grid-cols-2 xl:grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_auto]" role="search">
+      <form className="mb-4 grid gap-3 rounded-2xl border bg-card p-4 shadow-sm md:grid-cols-2 xl:grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_auto]" role="search">
         <div className="relative">
           <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input name="q" defaultValue={q} placeholder="Código, nombre o apellido" className="h-10 bg-white pl-9" aria-label="Buscar" />
+          <Input name="q" defaultValue={q} placeholder="Código, nombre o apellido" className="h-10 bg-card pl-9" aria-label="Buscar" />
         </div>
         <NativeSelect name="estado" defaultValue={estado} aria-label="Estado">
           <option value="">Todos los estados</option>
@@ -106,8 +106,8 @@ export default async function FilesPage(props: PageProps<"/admin/expedientes">) 
           <option value="envio">Fecha de envío</option>
           <option value="vencimiento">Fecha de vencimiento</option>
         </NativeSelect>
-        <Input type="date" name="desde" defaultValue={desde} className="h-10 bg-white" aria-label="Desde" />
-        <Input type="date" name="hasta" defaultValue={hasta} className="h-10 bg-white" aria-label="Hasta" />
+        <Input type="date" name="desde" defaultValue={desde} className="h-10 bg-card" aria-label="Desde" />
+        <Input type="date" name="hasta" defaultValue={hasta} className="h-10 bg-card" aria-label="Hasta" />
         <NativeSelect name="orden" defaultValue={orden} aria-label="Ordenar por">
           <option value="recientes">Más recientes</option>
           <option value="actividad">Última actividad</option>
@@ -122,7 +122,7 @@ export default async function FilesPage(props: PageProps<"/admin/expedientes">) 
         </div>
       </form>
 
-      <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl border bg-card shadow-sm">
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/50">

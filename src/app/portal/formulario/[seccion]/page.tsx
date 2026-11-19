@@ -31,7 +31,7 @@ export default async function SectionPage(props: PageProps<"/portal/formulario/[
   return (
     <div className="mx-auto grid max-w-6xl gap-6 px-4 py-6 lg:grid-cols-[16rem_1fr] lg:py-8">
       <aside className="hidden lg:block">
-        <nav className="sticky top-32 space-y-1 rounded-2xl border bg-white p-2 shadow-sm" aria-label="Secciones">
+        <nav className="sticky top-32 space-y-1 rounded-2xl border bg-card p-2 shadow-sm" aria-label="Secciones">
           <p className="px-3 pt-2 pb-1 text-xs font-semibold text-muted-foreground uppercase">Progreso {progress.percent}%</p>
           {progress.perSection.map((s) => (
             <Link
@@ -61,7 +61,7 @@ export default async function SectionPage(props: PageProps<"/portal/formulario/[
               href={`/portal/formulario/${s.key}`}
               className={cn(
                 "grid size-9 shrink-0 place-items-center rounded-full border text-sm font-medium",
-                s.key === seccion ? "border-primary bg-primary text-primary-foreground" : s.completed ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "bg-white text-muted-foreground",
+                s.key === seccion ? "border-primary bg-primary text-primary-foreground" : s.completed ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "bg-card text-muted-foreground",
               )}
               aria-label={`Sección ${s.order}: ${s.title}`}
             >

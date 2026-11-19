@@ -74,7 +74,7 @@ export function SettingsForm({ initial }: { initial: SettingsInput }) {
       )}
     >
       {GROUPS.map((g) => (
-        <section key={g.title} className="rounded-2xl border bg-white p-5 shadow-sm sm:p-6">
+        <section key={g.title} className="rounded-2xl border bg-card p-5 shadow-sm sm:p-6">
           <h2 className="font-semibold">{g.title}</h2>
           <p className="mt-0.5 text-sm text-muted-foreground">{g.description}</p>
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -82,9 +82,9 @@ export function SettingsForm({ initial }: { initial: SettingsInput }) {
               <div key={f.name} className={f.type === "textarea" ? "space-y-1.5 sm:col-span-2" : "space-y-1.5"}>
                 <Label htmlFor={f.name}>{f.label}</Label>
                 {f.type === "textarea" ? (
-                  <Textarea id={f.name} rows={f.rows} className="bg-white" placeholder={f.placeholder} {...form.register(f.name)} />
+                  <Textarea id={f.name} rows={f.rows} className="bg-card" placeholder={f.placeholder} {...form.register(f.name)} />
                 ) : (
-                  <Input id={f.name} type={f.type ?? "text"} className="h-10 bg-white" placeholder={f.placeholder} {...form.register(f.name)} />
+                  <Input id={f.name} type={f.type ?? "text"} className="h-10 bg-card" placeholder={f.placeholder} {...form.register(f.name)} />
                 )}
                 {f.hint && <p className="text-xs text-muted-foreground">{f.hint}</p>}
               </div>

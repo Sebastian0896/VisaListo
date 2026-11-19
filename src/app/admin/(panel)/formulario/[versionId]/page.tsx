@@ -34,7 +34,7 @@ export default async function VersionPage(props: PageProps<"/admin/formulario/[v
       />
       <div className="space-y-6">
         {sections.map((s) => (
-          <section key={s.id} className="rounded-2xl border bg-white shadow-sm">
+          <section key={s.id} className="rounded-2xl border bg-card shadow-sm">
             <header className="border-b px-5 py-4">
               <h2 className="font-semibold">{s.order}. {s.title}</h2>
               {s.description && <p className="text-sm text-muted-foreground">{s.description}</p>}

@@ -16,7 +16,7 @@ export default async function UsersPage() {
   return (
     <div className="mx-auto max-w-4xl">
       <PageHeader title="Usuarios" description="Administradores y asesores con acceso al panel. Un usuario desactivado pierde el acceso de inmediato." />
-      <section className="rounded-2xl border bg-white p-5 shadow-sm sm:p-6">
+      <section className="rounded-2xl border bg-card p-5 shadow-sm sm:p-6">
         <UsersManager currentId={me.id} users={users.map((u) => ({ ...u, lastLoginAt: u.lastLoginAt ? formatDateTime(u.lastLoginAt) : null }))} />
       </section>
     </div>

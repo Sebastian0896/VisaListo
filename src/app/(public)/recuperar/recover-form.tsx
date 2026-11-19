@@ -79,7 +79,7 @@ export function RecoverForm({ expired }: { expired: boolean }) {
           }
           void onSubmit(e);
         }}
-        className="space-y-4 rounded-2xl border bg-white p-5 shadow-sm sm:p-6"
+        className="space-y-4 rounded-2xl border bg-card p-5 shadow-sm sm:p-6"
         noValidate
       >
         <div className="space-y-1.5">
@@ -89,7 +89,7 @@ export function RecoverForm({ expired }: { expired: boolean }) {
             autoComplete="off"
             autoCapitalize="characters"
             placeholder="DS-XXXX-XXXX-XXXX"
-            className="h-11 bg-white font-mono text-base tracking-wider uppercase"
+            className="h-11 bg-card font-mono text-base tracking-wider uppercase"
             readOnly={!!question}
             aria-invalid={!!errors.code}
             {...form.register("code")}
@@ -102,18 +102,18 @@ export function RecoverForm({ expired }: { expired: boolean }) {
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
                 <Label htmlFor="surname">Primer apellido</Label>
-                <Input id="surname" autoComplete="family-name" className="h-10 bg-white" aria-invalid={!!errors.surname} {...form.register("surname")} />
+                <Input id="surname" autoComplete="family-name" className="h-10 bg-card" aria-invalid={!!errors.surname} {...form.register("surname")} />
                 <FieldError message={errors.surname?.message} />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="birthYear">Año de nacimiento</Label>
-                <Input id="birthYear" inputMode="numeric" maxLength={4} className="h-10 bg-white" aria-invalid={!!errors.birthYear} {...form.register("birthYear")} />
+                <Input id="birthYear" inputMode="numeric" maxLength={4} className="h-10 bg-card" aria-invalid={!!errors.birthYear} {...form.register("birthYear")} />
                 <FieldError message={errors.birthYear?.message} />
               </div>
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="securityAnswer">{question}</Label>
-              <Input id="securityAnswer" autoComplete="off" className="h-10 bg-white" aria-invalid={!!errors.securityAnswer} {...form.register("securityAnswer")} />
+              <Input id="securityAnswer" autoComplete="off" className="h-10 bg-card" aria-invalid={!!errors.securityAnswer} {...form.register("securityAnswer")} />
               <FieldError message={errors.securityAnswer?.message} />
             </div>
           </>

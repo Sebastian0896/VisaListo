@@ -191,7 +191,7 @@ export function SectionForm({
       noValidate
     >
       {/* Cabecera de la sección */}
-      <div className="rounded-2xl border bg-white p-5 shadow-sm sm:p-6">
+      <div className="rounded-2xl border bg-card p-5 shadow-sm sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-sm font-medium text-primary">Sección {section.order}</p>
@@ -221,7 +221,7 @@ export function SectionForm({
       </div>
 
       {/* Preguntas */}
-      <div className="space-y-7 rounded-2xl border bg-white p-5 shadow-sm sm:p-6">
+      <div className="space-y-7 rounded-2xl border bg-card p-5 shadow-sm sm:p-6">
         {visible.map((q) => (
           <QuestionField
             key={q.key}

@@ -22,11 +22,11 @@ export default async function ReviewPage() {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <div className="rounded-xl border bg-white p-4">
+        <div className="rounded-xl border bg-card p-4">
           <p className="text-sm text-muted-foreground">Progreso</p>
           <p className="text-2xl font-semibold">{progress.percent}%</p>
         </div>
-        <div className="rounded-xl border bg-white p-4">
+        <div className="rounded-xl border bg-card p-4">
           <p className="text-sm text-muted-foreground">Secciones completas</p>
           <p className="text-2xl font-semibold">{progress.perSection.length - pending.length}/{progress.perSection.length}</p>
         </div>
@@ -40,7 +40,7 @@ export default async function ReviewPage() {
         {sections.map((s) => {
           const p = progress.perSection.find((x) => x.key === s.key)!;
           return (
-            <section key={s.key} className="rounded-2xl border bg-white shadow-sm">
+            <section key={s.key} className="rounded-2xl border bg-card shadow-sm">
               <header className="flex flex-wrap items-center justify-between gap-2 border-b px-5 py-3.5">
                 <div className="flex items-center gap-2.5">
                   {p.completed ? <CheckCircle2 className="size-5 text-emerald-600" /> : <CircleAlert className="size-5 text-amber-600" />}

@@ -2,7 +2,13 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark {
+  @media screen {
+    &:is(.dark *) {
+      @slot;
+    }
+  }
+}
 
 @theme inline {
   --color-background: var(--background);
@@ -83,38 +89,116 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+/* Modo oscuro (solo pantalla: al imprimir se usa siempre el tema claro) */
+@media screen {
+  .dark {
+    color-scheme: dark;
+    --background: oklch(0.17 0.025 262);
+    --foreground: oklch(0.95 0.01 255);
+    --card: oklch(0.21 0.03 262);
+    --card-foreground: oklch(0.95 0.01 255);
+    --popover: oklch(0.23 0.032 262);
+    --popover-foreground: oklch(0.95 0.01 255);
+    --primary: oklch(0.76 0.11 255);
+    --primary-foreground: oklch(0.18 0.04 262);
+    --secondary: oklch(0.27 0.04 260);
+    --secondary-foreground: oklch(0.9 0.04 255);
+    --muted: oklch(0.25 0.03 260);
+    --muted-foreground: oklch(0.72 0.02 255);
+    --accent: oklch(0.29 0.045 258);
+    --accent-foreground: oklch(0.93 0.03 255);
+    --destructive: oklch(0.7 0.19 22);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.62 0.12 255);
+    --chart-1: oklch(0.87 0 0);
+    --chart-2: oklch(0.556 0 0);
+    --chart-3: oklch(0.439 0 0);
+    --chart-4: oklch(0.371 0 0);
+    --chart-5: oklch(0.269 0 0);
+    --sidebar: oklch(0.14 0.03 262);
+    --sidebar-foreground: oklch(0.93 0.01 255);
+    --sidebar-primary: oklch(0.98 0 0);
+    --sidebar-primary-foreground: oklch(0.14 0.03 262);
+    --sidebar-accent: oklch(0.24 0.045 262);
+    --sidebar-accent-foreground: oklch(0.99 0 0);
+    --sidebar-border: oklch(1 0 0 / 8%);
+    --sidebar-ring: oklch(0.62 0.12 255);
+
+    /* Escalas de color de avisos y estados, invertidas: fondos oscuros y textos claros */
+    --color-amber-50: oklch(0.26 0.07 70 / 0.55);
+    --color-amber-100: oklch(0.3 0.07 70 / 0.7);
+    --color-amber-200: oklch(0.42 0.07 70 / 0.6);
+    --color-amber-300: oklch(0.5 0.07 70 / 0.7);
+    --color-amber-600: oklch(0.72 0.11 70);
+    --color-amber-700: oklch(0.8 0.11 70);
+    --color-amber-800: oklch(0.85 0.11 70);
+    --color-amber-900: oklch(0.88 0.11 70);
+    --color-amber-950: oklch(0.92 0.077 70);
+    --color-sky-50: oklch(0.26 0.07 230 / 0.55);
+    --color-sky-100: oklch(0.3 0.07 230 / 0.7);
+    --color-sky-200: oklch(0.42 0.07 230 / 0.6);
+    --color-sky-300: oklch(0.5 0.07 230 / 0.7);
+    --color-sky-600: oklch(0.72 0.11 230);
+    --color-sky-700: oklch(0.8 0.11 230);
+    --color-sky-800: oklch(0.85 0.11 230);
+    --color-sky-900: oklch(0.88 0.11 230);
+    --color-sky-950: oklch(0.92 0.077 230);
+    --color-rose-50: oklch(0.26 0.07 15 / 0.55);
+    --color-rose-100: oklch(0.3 0.07 15 / 0.7);
+    --color-rose-200: oklch(0.42 0.07 15 / 0.6);
+    --color-rose-300: oklch(0.5 0.07 15 / 0.7);
+    --color-rose-600: oklch(0.72 0.11 15);
+    --color-rose-700: oklch(0.8 0.11 15);
+    --color-rose-800: oklch(0.85 0.11 15);
+    --color-rose-900: oklch(0.88 0.11 15);
+    --color-rose-950: oklch(0.92 0.077 15);
+    --color-emerald-50: oklch(0.26 0.07 160 / 0.55);
+    --color-emerald-100: oklch(0.3 0.07 160 / 0.7);
+    --color-emerald-200: oklch(0.42 0.07 160 / 0.6);
+    --color-emerald-300: oklch(0.5 0.07 160 / 0.7);
+    --color-emerald-600: oklch(0.72 0.11 160);
+    --color-emerald-700: oklch(0.8 0.11 160);
+    --color-emerald-800: oklch(0.85 0.11 160);
+    --color-emerald-900: oklch(0.88 0.11 160);
+    --color-emerald-950: oklch(0.92 0.077 160);
+    --color-indigo-50: oklch(0.26 0.07 277 / 0.55);
+    --color-indigo-100: oklch(0.3 0.07 277 / 0.7);
+    --color-indigo-200: oklch(0.42 0.07 277 / 0.6);
+    --color-indigo-300: oklch(0.5 0.07 277 / 0.7);
+    --color-indigo-600: oklch(0.72 0.11 277);
+    --color-indigo-700: oklch(0.8 0.11 277);
+    --color-indigo-800: oklch(0.85 0.11 277);
+    --color-indigo-900: oklch(0.88 0.11 277);
+    --color-indigo-950: oklch(0.92 0.077 277);
+    --color-violet-50: oklch(0.26 0.07 293 / 0.55);
+    --color-violet-100: oklch(0.3 0.07 293 / 0.7);
+    --color-violet-200: oklch(0.42 0.07 293 / 0.6);
+    --color-violet-300: oklch(0.5 0.07 293 / 0.7);
+    --color-violet-600: oklch(0.72 0.11 293);
+    --color-violet-700: oklch(0.8 0.11 293);
+    --color-violet-800: oklch(0.85 0.11 293);
+    --color-violet-900: oklch(0.88 0.11 293);
+    --color-violet-950: oklch(0.92 0.077 293);
+    --color-cyan-50: oklch(0.26 0.07 210 / 0.55);
+    --color-cyan-100: oklch(0.3 0.07 210 / 0.7);
+    --color-cyan-200: oklch(0.42 0.07 210 / 0.6);
+    --color-cyan-300: oklch(0.5 0.07 210 / 0.7);
+    --color-cyan-600: oklch(0.72 0.11 210);
+    --color-cyan-700: oklch(0.8 0.11 210);
+    --color-cyan-800: oklch(0.85 0.11 210);
+    --color-cyan-900: oklch(0.88 0.11 210);
+    --color-cyan-950: oklch(0.92 0.077 210);
+    --color-slate-50: oklch(0.26 0.02 257 / 0.55);
+    --color-slate-100: oklch(0.3 0.02 257 / 0.7);
+    --color-slate-200: oklch(0.42 0.02 257 / 0.6);
+    --color-slate-300: oklch(0.5 0.02 257 / 0.7);
+    --color-slate-600: oklch(0.72 0.02 257);
+    --color-slate-700: oklch(0.8 0.02 257);
+    --color-slate-800: oklch(0.85 0.02 257);
+    --color-slate-900: oklch(0.88 0.02 257);
+    --color-slate-950: oklch(0.92 0.014 257);
+  }
 }
 
 @layer base {

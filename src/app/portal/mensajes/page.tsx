@@ -33,7 +33,7 @@ export default async function ClientMessagesPage() {
       <div className="rounded-2xl border bg-muted/30 p-4 sm:p-6">
         <MessageThread messages={messages} viewer="CLIENT" />
       </div>
-      <div className="rounded-2xl border bg-white p-4 shadow-sm sm:p-5">
+      <div className="rounded-2xl border bg-card p-4 shadow-sm sm:p-5">
         <ComposeMessage send={sendClientMessageAction} placeholder="Escriba su consulta para el asesor…" />
       </div>
     </div>

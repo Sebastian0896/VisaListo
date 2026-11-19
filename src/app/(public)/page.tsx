@@ -28,11 +28,11 @@ export default async function HomePage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative overflow-hidden border-b bg-gradient-to-b from-white to-background">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(60%_50%_at_80%_0%,oklch(0.93_0.04_255)_0%,transparent_70%)]" />
+      <section className="relative overflow-hidden border-b bg-gradient-to-b from-card to-background">
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(60%_50%_at_80%_0%,var(--accent)_0%,transparent_70%)]" />
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 md:grid-cols-[1.15fr_1fr] md:py-24">
           <div className="space-y-6">
-            <span className="inline-flex items-center gap-2 rounded-full border bg-white px-3 py-1 text-xs font-medium text-muted-foreground">
+            <span className="inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
               <ShieldCheck className="size-3.5 text-primary" /> Asesoría privada en español
             </span>
             <h1 className="text-4xl font-semibold tracking-tight text-balance text-foreground md:text-5xl">
@@ -52,7 +52,7 @@ export default async function HomePage() {
 
           {/* Vista previa ilustrativa */}
           <div className="relative" aria-hidden>
-            <div className="rounded-2xl border bg-white p-5 shadow-xl shadow-primary/5">
+            <div className="rounded-2xl border bg-card p-5 shadow-xl shadow-primary/5">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-muted-foreground">Su progreso</p>
@@ -83,7 +83,7 @@ export default async function HomePage() {
         <p className="mt-2 max-w-2xl text-muted-foreground">Cuatro pasos sencillos. Usted avanza a su ritmo y su asesor le acompaña.</p>
         <ol className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {STEPS.map((step, i) => (
-            <li key={step.title} className="rounded-2xl border bg-white p-5">
+            <li key={step.title} className="rounded-2xl border bg-card p-5">
               <div className="flex items-center gap-3">
                 <span className="grid size-10 place-items-center rounded-xl bg-secondary text-primary"><step.icon className="size-5" /></span>
                 <span className="text-xs font-semibold text-muted-foreground">Paso {i + 1}</span>
@@ -96,7 +96,7 @@ export default async function HomePage() {
       </section>
 
       {/* Características */}
-      <section className="border-y bg-white">
+      <section className="border-y bg-card">
         <div className="mx-auto grid max-w-6xl gap-6 px-4 py-14 sm:grid-cols-2 lg:grid-cols-4">
           {FEATURES.map((f) => (
             <div key={f.title} className="flex gap-3">
@@ -133,7 +133,7 @@ export default async function HomePage() {
         </div>
         <div className="space-y-4">
           <DisclaimerBox />
-          <div className="rounded-xl border bg-white p-4 text-sm leading-relaxed text-muted-foreground">
+          <div className="rounded-xl border bg-card p-4 text-sm leading-relaxed text-muted-foreground">
             <p className="font-medium text-foreground">Sin promesas de aprobación</p>
             <p className="mt-1">
               La decisión sobre cualquier visa corresponde exclusivamente a las autoridades consulares. Nuestro servicio le ayuda a
@@ -144,21 +144,21 @@ export default async function HomePage() {
       </section>
 
       {/* Contacto */}
-      <section id="contacto" className="scroll-mt-24 border-t bg-primary text-primary-foreground">
+      <section id="contacto" className="scroll-mt-24 border-t bg-primary text-primary-foreground dark:bg-card dark:text-foreground">
         <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-4 py-14 md:flex-row md:items-center">
           <div>
             <h2 className="text-2xl font-semibold tracking-tight">¿Tiene preguntas antes de empezar?</h2>
-            <p className="mt-2 max-w-xl text-primary-foreground/75">
+            <p className="mt-2 max-w-xl text-primary-foreground/75 dark:text-muted-foreground">
               {[s.contactEmail, s.contactPhone, s.officeHours].filter(Boolean).join(" · ") || "Escríbanos y le orientamos sobre el proceso."}
             </p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
             {wa && (
-              <a href={wa} target="_blank" rel="noopener noreferrer" className={cn(buttonVariants({ size: "lg" }), "h-11 bg-white px-5 text-primary hover:bg-white/90")}>
+              <a href={wa} target="_blank" rel="noopener noreferrer" className={cn(buttonVariants({ size: "lg" }), "h-11 bg-background px-5 text-foreground hover:bg-background/90")}>
                 <WhatsAppIcon className="size-5 text-[#1f9d55]" /> Escribir por WhatsApp
               </a>
             )}
-            <Link href="/comenzar" className={cn(buttonVariants({ variant: "outline", size: "lg" }), "h-11 border-white/30 bg-transparent px-5 text-white hover:bg-white/10 hover:text-white")}>
+            <Link href="/comenzar" className={cn(buttonVariants({ variant: "outline", size: "lg" }), "h-11 border-primary-foreground/30 bg-transparent px-5 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground dark:border-border dark:text-foreground dark:hover:bg-muted dark:hover:text-foreground")}>
               Comenzar formulario
             </Link>
           </div>

@@ -62,7 +62,7 @@ export function StartWizard({
           <p className="mt-1 text-muted-foreground">Guarde este código. Lo necesitará para volver a entrar.</p>
         </div>
 
-        <div className="print-page rounded-2xl border-2 border-primary/15 bg-white p-6 text-center shadow-sm">
+        <div className="print-page rounded-2xl border-2 border-primary/15 bg-card p-6 text-center shadow-sm">
           <p className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">Código de expediente</p>
           <p className="mt-2 font-mono text-3xl font-semibold tracking-[0.12em] text-primary select-all sm:text-4xl">{result.code}</p>
           <div className="mt-4 rounded-xl bg-muted p-3 text-left text-sm">
@@ -91,7 +91,7 @@ export function StartWizard({
           </div>
         </div>
 
-        <div className="no-print space-y-4 rounded-2xl border bg-white p-5">
+        <div className="no-print space-y-4 rounded-2xl border bg-card p-5">
           <h2 className="font-semibold">Antes de comenzar</h2>
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li>• Tenga a mano su pasaporte y datos de empleo, estudios y familia.</li>
@@ -126,7 +126,7 @@ export function StartWizard({
         </div>
       )}
 
-      <form onSubmit={onSubmit} className="space-y-6 rounded-2xl border bg-white p-5 shadow-sm sm:p-6" noValidate>
+      <form onSubmit={onSubmit} className="space-y-6 rounded-2xl border bg-card p-5 shadow-sm sm:p-6" noValidate>
         <fieldset className="space-y-4">
           <legend className="mb-1 font-semibold">Datos de verificación</legend>
           <p className="-mt-1 text-sm text-muted-foreground">Junto con su código, se usarán para confirmar su identidad cuando regrese.</p>

@@ -35,7 +35,7 @@ export function ComposeMessage({
         });
       }}
     >
-      <Textarea value={text} onChange={(e) => setText(e.target.value)} rows={3} maxLength={2000} placeholder={placeholder} className="bg-white" aria-label="Mensaje" />
+      <Textarea value={text} onChange={(e) => setText(e.target.value)} rows={3} maxLength={2000} placeholder={placeholder} className="bg-card" aria-label="Mensaje" />
       <div className="flex items-center justify-between">
         <span className="text-xs text-muted-foreground">{text.length}/2000</span>
         <Button type="submit" disabled={pending || text.trim().length < 2}>

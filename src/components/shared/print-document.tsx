@@ -31,7 +31,7 @@ export function PrintDocument({
   adminExtra?: React.ReactNode;
 }) {
   return (
-    <article className="print-page mx-auto max-w-4xl rounded-2xl border bg-white p-6 shadow-sm sm:p-10">
+    <article className="print-page mx-auto max-w-4xl rounded-2xl border bg-card p-6 shadow-sm sm:p-10">
       <div className="rounded-lg border-2 border-rose-300 bg-rose-50 px-4 py-2.5 text-center text-[11px] font-bold tracking-wide text-rose-900">{PRIVATE_MARK}</div>
       <header className="mt-6 flex flex-wrap items-start justify-between gap-4 border-b pb-5">
         <div>

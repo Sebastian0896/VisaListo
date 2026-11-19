@@ -20,7 +20,7 @@ export function Brand({ name, logoUrl, href = "/", inverted = false }: { name: s
         // eslint-disable-next-line @next/next/no-img-element
         <img src={logoUrl} alt="" className="size-9 rounded-xl object-contain" />
       ) : (
-        <BrandMark className={inverted ? "bg-white text-primary" : undefined} />
+        <BrandMark className={inverted ? "bg-card text-primary" : undefined} />
       )}
       <span className="flex flex-col leading-tight">
         <span className={cn("text-[15px] font-semibold tracking-tight", inverted ? "text-white" : "text-foreground")}>{name}</span>

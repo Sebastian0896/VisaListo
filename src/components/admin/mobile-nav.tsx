@@ -9,7 +9,7 @@ export function MobileNav({ badges, title, isAdmin }: { badges: { submitted: num
   const [open, setOpen] = useState(false);
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger className="inline-flex size-9 items-center justify-center rounded-lg border bg-white" aria-label="Abrir menú">
+      <SheetTrigger className="inline-flex size-9 items-center justify-center rounded-lg border bg-card" aria-label="Abrir menú">
         <Menu className="size-5" />
       </SheetTrigger>
       <SheetContent side="left" className="w-72 border-sidebar-border bg-sidebar p-3 text-sidebar-foreground">

@@ -15,7 +15,7 @@ export function LoginForm() {
   const [pending, startTransition] = useTransition();
   return (
     <form
-      className="space-y-4 rounded-2xl border bg-white p-6 shadow-sm"
+      className="space-y-4 rounded-2xl border bg-card p-6 shadow-sm"
       onSubmit={(e) => {
         e.preventDefault();
         const fd = new FormData(e.currentTarget);
@@ -34,11 +34,11 @@ export function LoginForm() {
       {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
       <div className="space-y-1.5">
         <Label htmlFor="email">Correo</Label>
-        <Input id="email" name="email" type="email" autoComplete="username" required className="h-10 bg-white" />
+        <Input id="email" name="email" type="email" autoComplete="username" required className="h-10 bg-card" />
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="password">Contraseña</Label>
-        <Input id="password" name="password" type="password" autoComplete="current-password" required className="h-10 bg-white" />
+        <Input id="password" name="password" type="password" autoComplete="current-password" required className="h-10 bg-card" />
       </div>
       <Button type="submit" size="lg" className="h-10 w-full" disabled={pending}>
         {pending ? <Loader2 className="animate-spin" /> : <LogIn />} Ingresar

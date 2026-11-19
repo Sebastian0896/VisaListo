@@ -14,13 +14,13 @@ export const metadata: Metadata = { title: "Dashboard" };
 
 const CARDS: { status: FileStatus | "ALL"; label: string; tone: string }[] = [
   { status: "ALL", label: "Total de expedientes", tone: "border-primary/20 bg-primary text-primary-foreground" },
-  { status: "PENDING_START", label: STATUS_LABELS.PENDING_START, tone: "bg-white" },
-  { status: "IN_PROGRESS", label: STATUS_LABELS.IN_PROGRESS, tone: "bg-white" },
-  { status: "SUBMITTED", label: STATUS_LABELS.SUBMITTED, tone: "bg-white" },
-  { status: "IN_REVIEW", label: STATUS_LABELS.IN_REVIEW, tone: "bg-white" },
-  { status: "NEEDS_CORRECTIONS", label: STATUS_LABELS.NEEDS_CORRECTIONS, tone: "bg-white" },
-  { status: "REVIEWED", label: STATUS_LABELS.REVIEWED, tone: "bg-white" },
-  { status: "EXPIRED", label: STATUS_LABELS.EXPIRED, tone: "bg-white" },
+  { status: "PENDING_START", label: STATUS_LABELS.PENDING_START, tone: "bg-card" },
+  { status: "IN_PROGRESS", label: STATUS_LABELS.IN_PROGRESS, tone: "bg-card" },
+  { status: "SUBMITTED", label: STATUS_LABELS.SUBMITTED, tone: "bg-card" },
+  { status: "IN_REVIEW", label: STATUS_LABELS.IN_REVIEW, tone: "bg-card" },
+  { status: "NEEDS_CORRECTIONS", label: STATUS_LABELS.NEEDS_CORRECTIONS, tone: "bg-card" },
+  { status: "REVIEWED", label: STATUS_LABELS.REVIEWED, tone: "bg-card" },
+  { status: "EXPIRED", label: STATUS_LABELS.EXPIRED, tone: "bg-card" },
 ];
 
 export default async function AdminDashboard(props: PageProps<"/admin">) {
@@ -113,7 +113,7 @@ export default async function AdminDashboard(props: PageProps<"/admin">) {
 
 function Panel({ title, icon, href, children }: { title: string; icon: React.ReactNode; href: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border bg-white shadow-sm">
+    <section className="rounded-2xl border bg-card shadow-sm">
       <header className="flex items-center justify-between border-b px-4 py-3">
         <h2 className="flex items-center gap-2 text-sm font-semibold">{icon} {title}</h2>
         <Link href={href} className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">Ver todo <ArrowRight className="size-3" /></Link>

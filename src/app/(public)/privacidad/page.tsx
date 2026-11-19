@@ -13,7 +13,7 @@ export default async function PrivacyPage() {
       <h1 className="text-3xl font-semibold tracking-tight">Política de privacidad</h1>
       <p className="mt-1 text-sm text-muted-foreground">Versión {s.privacyVersion}</p>
       <DisclaimerBox className="my-6" />
-      <div className="rounded-2xl border bg-white p-6 md:p-8">
+      <div className="rounded-2xl border bg-card p-6 md:p-8">
         <SimpleMarkdown text={s.privacyPolicy || "La política de privacidad se publicará próximamente."} />
       </div>
     </div>

@@ -34,7 +34,7 @@ export default async function PortalHome() {
 
       <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
         <section className="space-y-6">
-          <div className="rounded-2xl border bg-white p-6 shadow-sm">
+          <div className="rounded-2xl border bg-card p-6 shadow-sm">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <p className="text-sm text-muted-foreground">Expediente {file.uniqueCode}</p>
@@ -71,7 +71,7 @@ export default async function PortalHome() {
             </div>
           </div>
 
-          <div className="rounded-2xl border bg-white shadow-sm">
+          <div className="rounded-2xl border bg-card shadow-sm">
             <h2 className="border-b px-6 py-4 font-semibold">Secciones del formulario</h2>
             <ul className="divide-y">
               {progress.perSection.map((s) => (
@@ -93,7 +93,7 @@ export default async function PortalHome() {
         </section>
 
         <aside className="space-y-4">
-          <div className="rounded-2xl border bg-white p-5 shadow-sm">
+          <div className="rounded-2xl border bg-card p-5 shadow-sm">
             <h2 className="text-sm font-semibold">Vigencia</h2>
             <div className="mt-2"><ExpiryCountdown paused={["SUBMITTED", "IN_REVIEW", "REVIEWED"].includes(file.status)} expiresAt={file.expiresAt?.toISOString() ?? null} warningDays={settings.expiryWarningDays} /></div>
             <dl className="mt-4 space-y-2 text-sm">
@@ -103,14 +103,14 @@ export default async function PortalHome() {
               {file.submittedAt && <div className="flex justify-between gap-2"><dt className="text-muted-foreground">Enviado</dt><dd>{formatDateTime(file.submittedAt)}</dd></div>}
             </dl>
           </div>
-          <div className="rounded-2xl border bg-white p-5 shadow-sm">
+          <div className="rounded-2xl border bg-card p-5 shadow-sm">
             <h2 className="text-sm font-semibold">Su asesor</h2>
             <Link href="/portal/mensajes" className="mt-3 flex items-center justify-between rounded-lg border px-3 py-2.5 text-sm transition hover:bg-muted/50">
               <span className="flex items-center gap-2"><MessageSquare className="size-4 text-primary" /> Mensajes</span>
               {unread > 0 ? <span className="rounded-full bg-primary px-2 text-xs font-semibold text-primary-foreground">{unread} nuevo{unread > 1 ? "s" : ""}</span> : <ArrowRight className="size-4 text-muted-foreground" />}
             </Link>
           </div>
-          <div className="rounded-2xl border bg-white p-5 shadow-sm">
+          <div className="rounded-2xl border bg-card p-5 shadow-sm">
             <h2 className="text-sm font-semibold">Su copia</h2>
             <div className="mt-3 grid gap-2">
               <Link href="/portal/imprimir" className={cn(buttonVariants({ variant: "outline" }), "justify-start")}><Printer /> Vista para imprimir</Link>

@@ -10,7 +10,7 @@ export default async function AccountPage() {
   return (
     <div className="mx-auto max-w-3xl">
       <PageHeader title="Mi cuenta" description={`Datos con los que inicia sesión en el panel · Rol: ${ROLE_LABELS[me.role]}`} />
-      <section className="rounded-2xl border bg-white p-5 shadow-sm sm:p-6">
+      <section className="rounded-2xl border bg-card p-5 shadow-sm sm:p-6">
         <AccountForm name={me.name} email={me.email} />
       </section>
     </div>
