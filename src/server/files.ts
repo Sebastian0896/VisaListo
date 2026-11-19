@@ -211,7 +211,7 @@ export function clientCanEdit(file: Pick<ApplicationFile, "status" | "expiresAt"
 export async function getClientFile(fileId: string) {
   const file = await db.applicationFile.findUnique({
     where: { id: fileId },
-    include: { applicant: true, securityQuestion: true, advisor: { select: { name: true, whatsappNumber: true, active: true } } },
+    include: { applicant: true, securityQuestion: true, advisor: { select: { name: true, whatsappNumber: true, contactHours: true, active: true } } },
   });
   if (!file) return null;
   return applyExpiry(file);

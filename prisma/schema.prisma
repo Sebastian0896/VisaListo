@@ -81,6 +81,8 @@ model AdminUser {
   advisorCode  String    @unique
   /// WhatsApp propio del asesor (si está vacío se usa el general de la plataforma)
   whatsappNumber String?
+  /// Horario de atención que ven sus clientes (ej.: Lunes a viernes, 9:00 a 6:00)
+  contactHours   String?
   passwordHash String
   active       Boolean   @default(true)
   lastLoginAt  DateTime?

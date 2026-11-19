@@ -5,17 +5,16 @@ import { MessageThread } from "@/components/shared/message-thread";
 import { WhatsAppIcon } from "@/components/shared/whatsapp-button";
 import { buttonVariants } from "@/components/ui/button";
 import { db } from "@/lib/db";
-import { whatsappLink } from "@/lib/settings";
 import { getPortalData } from "@/server/portal";
 
 export const metadata: Metadata = { title: "Mensajes" };
 
 export default async function ClientMessagesPage() {
-  const { file, settings } = await getPortalData();
+  const { file, contact } = await getPortalData();
   const messages = await db.message.findMany({ where: { applicationFileId: file.id }, orderBy: { createdAt: "asc" } });
   // Al abrir la conversación, los mensajes del asesor quedan como leídos
   await db.message.updateMany({ where: { applicationFileId: file.id, senderType: "ADMIN", readAt: null }, data: { readAt: new Date() } });
-  const wa = whatsappLink((file.advisor?.active && file.advisor.whatsappNumber) || settings.whatsappNumber, settings.whatsappMessage, file.uniqueCode);
+  const wa = contact.whatsappHref;
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-4 py-8">
@@ -26,7 +25,7 @@ export default async function ClientMessagesPage() {
         </div>
         {wa && (
           <a href={wa} target="_blank" rel="noopener noreferrer" className={buttonVariants({ variant: "outline" })}>
-            <WhatsAppIcon className="size-4 text-[#1f9d55]" /> WhatsApp
+            <WhatsAppIcon className="size-4 text-[#1f9d55]" /> {contact.isAdvisorNumber && contact.advisorName ? `WhatsApp de ${contact.advisorName.split(" ")[0]}` : "WhatsApp"}
           </a>
         )}
       </div>

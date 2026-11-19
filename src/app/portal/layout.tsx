@@ -7,15 +7,13 @@ import { DisclaimerBar } from "@/components/shared/disclaimer";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { WhatsAppFloat } from "@/components/shared/whatsapp-button";
 import { Button } from "@/components/ui/button";
-import { whatsappLink } from "@/lib/settings";
 import { ThemeToggle } from "@/components/shared/theme";
 import { getPortalData } from "@/server/portal";
 
 export const dynamic = "force-dynamic";
 
 export default async function PortalLayout({ children }: LayoutProps<"/portal">) {
-  const { file, settings, unread, sections } = await getPortalData();
-  const wa = whatsappLink((file.advisor?.active && file.advisor.whatsappNumber) || settings.whatsappNumber, settings.whatsappMessage, file.uniqueCode);
+  const { file, settings, unread, sections, contact } = await getPortalData();
   const firstSection = sections[0]?.key ?? "";
   const nav = [
     { href: "/portal", label: "Resumen", icon: Home },
@@ -53,7 +51,7 @@ export default async function PortalLayout({ children }: LayoutProps<"/portal">)
         </nav>
       </header>
       <main className="flex-1">{children}</main>
-      <WhatsAppFloat href={wa} />
+      <WhatsAppFloat href={contact.whatsappHref} label={contact.isAdvisorNumber && contact.advisorName ? `Hablar con ${contact.advisorName.split(" ")[0].charAt(0)}${contact.advisorName.split(" ")[0].slice(1).toLowerCase()}` : undefined} />
     </>
   );
 }

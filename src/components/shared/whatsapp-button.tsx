@@ -6,7 +6,7 @@ export function WhatsAppIcon({ className }: { className?: string }) {
   );
 }
 
-export function WhatsAppFloat({ href }: { href: string | null }) {
+export function WhatsAppFloat({ href, label = "¿Necesita ayuda?" }: { href: string | null; label?: string }) {
   if (!href) return null;
   return (
     <a
@@ -14,10 +14,10 @@ export function WhatsAppFloat({ href }: { href: string | null }) {
       target="_blank"
       rel="noopener noreferrer"
       className="no-print fixed right-4 bottom-4 z-40 flex items-center gap-2 rounded-full bg-[#1f9d55] py-3 pr-4 pl-3 text-sm font-medium text-white shadow-lg shadow-black/15 transition hover:bg-[#188a49] focus-visible:ring-4 focus-visible:ring-[#1f9d55]/30 focus-visible:outline-none sm:right-6 sm:bottom-6"
-      aria-label="Escribir por WhatsApp a su asesor"
+      aria-label={`WhatsApp: ${label}`}
     >
       <WhatsAppIcon className="size-6" />
-      <span className="hidden sm:inline">¿Necesita ayuda?</span>
+      <span className="hidden sm:inline">{label}</span>
     </a>
   );
 }

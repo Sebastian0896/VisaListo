@@ -15,10 +15,10 @@ import { cn } from "@/lib/utils";
 
 type Role = keyof typeof ROLE_LABELS;
 
-export function AccountForm({ name, email, whatsappNumber }: { name: string; email: string; whatsappNumber: string }) {
+export function AccountForm({ name, email, whatsappNumber, contactHours }: { name: string; email: string; whatsappNumber: string; contactHours: string }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const form = useForm<AccountInput>({ defaultValues: { name, email, whatsappNumber, currentPassword: "", newPassword: "", confirmPassword: "" } });
+  const form = useForm<AccountInput>({ defaultValues: { name, email, whatsappNumber, contactHours, currentPassword: "", newPassword: "", confirmPassword: "" } });
 
   return (
     <form
@@ -28,7 +28,7 @@ export function AccountForm({ name, email, whatsappNumber }: { name: string; ema
           const res = await updateAccountAction(v);
           if (!res.ok) return void toast.error(res.error);
           toast.success(v.newPassword ? "Cuenta y contraseña actualizadas" : "Cuenta actualizada");
-          form.reset({ name: v.name, email: v.email.trim().toLowerCase(), whatsappNumber: v.whatsappNumber, currentPassword: "", newPassword: "", confirmPassword: "" });
+          form.reset({ name: v.name, email: v.email.trim().toLowerCase(), whatsappNumber: v.whatsappNumber, contactHours: v.contactHours, currentPassword: "", newPassword: "", confirmPassword: "" });
           router.refresh();
         }),
       )}
@@ -42,11 +42,17 @@ export function AccountForm({ name, email, whatsappNumber }: { name: string; ema
           <Label htmlFor="acc-email">Correo de acceso</Label>
           <Input id="acc-email" type="email" className="h-10 bg-card" autoComplete="username" {...form.register("email")} />
         </div>
-        <div className="space-y-1.5 sm:col-span-2">
+        <div className="space-y-1.5">
           <Label htmlFor="acc-wa">Mi WhatsApp (opcional)</Label>
-          <Input id="acc-wa" type="tel" className="h-10 bg-card sm:max-w-xs" placeholder="+1 809 000 0000" {...form.register("whatsappNumber")} />
-          <p className="text-xs text-muted-foreground">Si lo completa, el botón de WhatsApp de sus clientes le escribirá a usted. Si no, usa el número general de la plataforma.</p>
+          <Input id="acc-wa" type="tel" className="h-10 bg-card" placeholder="+1 809 000 0000" {...form.register("whatsappNumber")} />
         </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="acc-hours">Horario de atención (opcional)</Label>
+          <Input id="acc-hours" className="h-10 bg-card" maxLength={120} placeholder="Lunes a viernes, 9:00 a 6:00" {...form.register("contactHours")} />
+        </div>
+        <p className="text-xs text-muted-foreground sm:col-span-2">
+          Sus clientes vinculados verán su WhatsApp y su horario dentro de su portal (nunca en páginas públicas). Si no pone un número, verán el WhatsApp general de la oficina.
+        </p>
       </div>
 
       <fieldset className="space-y-3 rounded-xl border bg-muted/30 p-4">

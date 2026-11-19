@@ -41,6 +41,7 @@ const accountSchema = z.object({
   newPassword: z.string().max(200),
   confirmPassword: z.string().max(200),
   whatsappNumber: z.string().trim().regex(/^\+?[\d\s-]{0,20}$/, "Número de WhatsApp no válido").max(20),
+  contactHours: z.string().trim().max(120, "Máximo 120 caracteres"),
 });
 export type AccountInput = z.input<typeof accountSchema>;
 
@@ -69,9 +70,9 @@ export async function updateAccountAction(input: AccountInput): Promise<Result> 
 
   await db.adminUser.update({
     where: { id: me.id },
-    data: { name: d.name, email: d.email, whatsappNumber: d.whatsappNumber || null, ...(changingPassword ? { passwordHash: await hashPassword(d.newPassword) } : {}) },
+    data: { name: d.name, email: d.email, whatsappNumber: d.whatsappNumber || null, contactHours: d.contactHours || null, ...(changingPassword ? { passwordHash: await hashPassword(d.newPassword) } : {}) },
   });
-  const changed = [d.name !== user.name && "nombre", d.email !== user.email && "correo", (d.whatsappNumber || null) !== user.whatsappNumber && "whatsapp"].filter(Boolean);
+  const changed = [d.name !== user.name && "nombre", d.email !== user.email && "correo", (d.whatsappNumber || null) !== user.whatsappNumber && "whatsapp", (d.contactHours || null) !== user.contactHours && "horario"].filter(Boolean);
   if (changed.length) await audit({ action: "admin.account_updated", actorType: "ADMIN", actorId: me.id, details: { fields: changed } });
   if (changingPassword) await audit({ action: "admin.password_changed", actorType: "ADMIN", actorId: me.id });
   revalidatePath("/admin", "layout");

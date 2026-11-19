@@ -12,7 +12,7 @@ export const metadata: Metadata = { title: "Mi cuenta" };
 export default async function AccountPage() {
   const me = await requireAdmin();
   const [extra, h] = await Promise.all([
-    db.adminUser.findUnique({ where: { id: me.id }, select: { advisorCode: true, whatsappNumber: true } }),
+    db.adminUser.findUnique({ where: { id: me.id }, select: { advisorCode: true, whatsappNumber: true, contactHours: true } }),
     headers(),
   ]);
   const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3002";
@@ -30,7 +30,7 @@ export default async function AccountPage() {
       </section>
       <section className="rounded-2xl border bg-card p-5 shadow-sm sm:p-6">
         <h2 className="mb-5 font-semibold">Datos de acceso y contacto</h2>
-        <AccountForm name={me.name} email={me.email} whatsappNumber={extra?.whatsappNumber ?? ""} />
+        <AccountForm name={me.name} email={me.email} whatsappNumber={extra?.whatsappNumber ?? ""} contactHours={extra?.contactHours ?? ""} />
       </section>
     </div>
   );
