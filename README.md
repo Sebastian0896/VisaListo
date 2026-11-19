@@ -8,11 +8,12 @@ Plataforma web para que los solicitantes preparen la información de su formular
 
 Next.js 16 (App Router) · TypeScript · Tailwind CSS 4 · shadcn/ui (Base UI) · Lucide · PostgreSQL · Prisma 7 · Auth.js v5 · React Hook Form · Zod · Sonner · @react-pdf/renderer.
 
-## Puesta en marcha (local)
+## Puesta en marcha
+
+La base de datos es PostgreSQL en **Supabase** (proyecto de desarrollo y proyecto de producción). Copie `.env.example` a `.env` y complete `DATABASE_URL` (Transaction pooler, puerto 6543) y `DIRECT_URL` (Session pooler, puerto 5432).
 
 ```powershell
 npm install
-npm run db:setup     # crea el usuario/base de DATABASE_URL (pide la contraseña de "postgres")
 npm run db:migrate   # aplica las migraciones
 npm run db:seed      # formulario v1, preguntas de seguridad, configuración y asesor inicial
 npm run dev          # http://localhost:3002
