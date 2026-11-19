@@ -1,3 +1,4 @@
+import { requireAdmin } from "@/server/guards";
 import { AlertTriangle, BadgeCheck, Pencil } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -13,6 +14,7 @@ export const metadata: Metadata = { title: "Formulario" };
 const STATUS = { DRAFT: "Borrador", PUBLISHED: "Publicada", ARCHIVED: "Archivada" } as const;
 
 export default async function TemplatesPage() {
+  await requireAdmin("ADMIN");
   const versions = await db.formTemplateVersion.findMany({
     orderBy: { version: "desc" },
     include: { template: true, _count: { select: { files: true, sections: true } } },

@@ -1,17 +1,20 @@
 "use client";
 
-import { KeyRound, Loader2, Plus, Save, UserCheck, UserX } from "lucide-react";
+import { KeyRound, Loader2, Plus, Save, ShieldCheck, UserCheck, UserX } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { createAdminAction, setAdminActiveAction, updateAccountAction, type AccountInput, type NewAdminInput } from "@/actions/account";
+import { createUserAction, setUserActiveAction, setUserRoleAction, updateAccountAction, type AccountInput, type NewUserInput } from "@/actions/account";
+import { NativeSelect } from "@/components/form/primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
-const PASSWORD_HINT = "Mínimo 10 caracteres, con letras y al menos un número.";
+export const PASSWORD_HINT = "Mínimo 10 caracteres, con letras y al menos un número.";
+export const ROLE_LABELS = { ADMIN: "Administrador", ADVISOR: "Asesor" } as const;
+type Role = keyof typeof ROLE_LABELS;
 
 export function AccountForm({ name, email }: { name: string; email: string }) {
   const router = useRouter();
@@ -70,40 +73,58 @@ export function AccountForm({ name, email }: { name: string; email: string }) {
   );
 }
 
-type AdminRow = { id: string; name: string; email: string; active: boolean; lastLoginAt: string | null };
+type UserRow = { id: string; name: string; email: string; role: Role; active: boolean; lastLoginAt: string | null };
 
-export function AdminsManager({ admins, currentId }: { admins: AdminRow[]; currentId: string }) {
+export function UsersManager({ users, currentId }: { users: UserRow[]; currentId: string }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [adding, setAdding] = useState(false);
-  const form = useForm<NewAdminInput>({ defaultValues: { name: "", email: "", password: "" } });
+  const form = useForm<NewUserInput>({ defaultValues: { name: "", email: "", password: "", role: "ADVISOR" } });
 
-  const toggle = (a: AdminRow) =>
+  const run = (fn: () => Promise<{ ok: true } | { ok: false; error: string }>, msg: string) =>
     startTransition(async () => {
-      const res = await setAdminActiveAction(a.id, !a.active);
+      const res = await fn();
       if (!res.ok) return void toast.error(res.error);
-      toast.success(a.active ? "Asesor desactivado" : "Asesor activado");
+      toast.success(msg);
       router.refresh();
     });
 
   return (
     <div className="space-y-4">
       <ul className="divide-y rounded-xl border bg-white">
-        {admins.map((a) => (
-          <li key={a.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-            <div className="min-w-0">
-              <p className={cn("text-sm font-medium", !a.active && "text-muted-foreground line-through")}>
-                {a.name} {a.id === currentId && <span className="ml-1 rounded bg-secondary px-1.5 py-0.5 text-[11px] font-semibold text-primary no-underline">Usted</span>}
-              </p>
-              <p className="truncate text-xs text-muted-foreground">{a.email} · Último acceso: {a.lastLoginAt ?? "nunca"}</p>
-            </div>
-            {a.id !== currentId && (
-              <Button variant="outline" size="sm" disabled={pending} onClick={() => toggle(a)}>
-                {a.active ? <><UserX /> Desactivar</> : <><UserCheck /> Activar</>}
-              </Button>
-            )}
-          </li>
-        ))}
+        {users.map((u) => {
+          const me = u.id === currentId;
+          return (
+            <li key={u.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+              <div className="min-w-0">
+                <p className={cn("flex flex-wrap items-center gap-1.5 text-sm font-medium", !u.active && "text-muted-foreground")}>
+                  <span className={cn(!u.active && "line-through")}>{u.name}</span>
+                  <span className={cn("rounded px-1.5 py-0.5 text-[11px] font-semibold", u.role === "ADMIN" ? "bg-primary text-primary-foreground" : "bg-secondary text-primary")}>{ROLE_LABELS[u.role]}</span>
+                  {me && <span className="rounded bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground">Usted</span>}
+                  {!u.active && <span className="text-[11px] font-semibold text-rose-700">Inactivo</span>}
+                </p>
+                <p className="truncate text-xs text-muted-foreground">{u.email} · Último acceso: {u.lastLoginAt ?? "nunca"}</p>
+              </div>
+              {!me && (
+                <div className="flex flex-wrap gap-2">
+                  <NativeSelect
+                    aria-label={`Rol de ${u.name}`}
+                    className="h-8 w-40 text-xs"
+                    value={u.role}
+                    disabled={pending}
+                    onChange={(e) => run(() => setUserRoleAction(u.id, e.target.value as Role), "Rol actualizado")}
+                  >
+                    <option value="ADVISOR">Asesor</option>
+                    <option value="ADMIN">Administrador</option>
+                  </NativeSelect>
+                  <Button variant="outline" size="sm" disabled={pending} onClick={() => run(() => setUserActiveAction(u.id, !u.active), u.active ? "Usuario desactivado" : "Usuario activado")}>
+                    {u.active ? <><UserX /> Desactivar</> : <><UserCheck /> Activar</>}
+                  </Button>
+                </div>
+              )}
+            </li>
+          );
+        })}
       </ul>
 
       {adding ? (
@@ -111,29 +132,44 @@ export function AdminsManager({ admins, currentId }: { admins: AdminRow[]; curre
           className="space-y-3 rounded-xl border bg-muted/30 p-4"
           onSubmit={form.handleSubmit((v) =>
             startTransition(async () => {
-              const res = await createAdminAction(v);
+              const res = await createUserAction(v);
               if (!res.ok) return void toast.error(res.error);
-              toast.success("Asesor creado");
+              toast.success(`${ROLE_LABELS[v.role as Role]} creado`);
               form.reset();
               setAdding(false);
               router.refresh();
             }),
           )}
         >
-          <div className="grid gap-3 sm:grid-cols-3">
-            <div className="space-y-1.5"><Label htmlFor="na-name">Nombre</Label><Input id="na-name" className="h-9 bg-white" {...form.register("name")} /></div>
-            <div className="space-y-1.5"><Label htmlFor="na-email">Correo</Label><Input id="na-email" type="email" className="h-9 bg-white" autoComplete="off" {...form.register("email")} /></div>
-            <div className="space-y-1.5"><Label htmlFor="na-pass">Contraseña inicial</Label><Input id="na-pass" type="password" className="h-9 bg-white" autoComplete="new-password" {...form.register("password")} /></div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="space-y-1.5"><Label htmlFor="nu-name">Nombre</Label><Input id="nu-name" className="h-9 bg-white" {...form.register("name")} /></div>
+            <div className="space-y-1.5"><Label htmlFor="nu-email">Correo</Label><Input id="nu-email" type="email" className="h-9 bg-white" autoComplete="off" {...form.register("email")} /></div>
+            <div className="space-y-1.5"><Label htmlFor="nu-pass">Contraseña inicial</Label><Input id="nu-pass" type="password" className="h-9 bg-white" autoComplete="new-password" {...form.register("password")} /></div>
+            <div className="space-y-1.5">
+              <Label htmlFor="nu-role">Rol</Label>
+              <NativeSelect id="nu-role" className="h-9" {...form.register("role")}>
+                <option value="ADVISOR">Asesor</option>
+                <option value="ADMIN">Administrador</option>
+              </NativeSelect>
+            </div>
           </div>
-          <p className="text-xs text-muted-foreground">{PASSWORD_HINT} Comuníquesela por un canal seguro y pídale que la cambie al entrar.</p>
+          <p className="text-xs text-muted-foreground">{PASSWORD_HINT} Comuníquela por un canal seguro y pida que la cambie en «Mi cuenta» al entrar.</p>
           <div className="flex gap-2">
-            <Button type="submit" size="sm" disabled={pending}>{pending ? <Loader2 className="animate-spin" /> : <Plus />} Crear asesor</Button>
+            <Button type="submit" size="sm" disabled={pending}>{pending ? <Loader2 className="animate-spin" /> : <Plus />} Crear usuario</Button>
             <Button type="button" size="sm" variant="ghost" onClick={() => setAdding(false)}>Cancelar</Button>
           </div>
         </form>
       ) : (
-        <Button variant="outline" size="sm" onClick={() => setAdding(true)}><Plus /> Agregar asesor</Button>
+        <Button variant="outline" size="sm" onClick={() => setAdding(true)}><Plus /> Agregar usuario</Button>
       )}
+
+      <div className="flex gap-2.5 rounded-xl border bg-muted/30 p-3.5 text-xs leading-relaxed text-muted-foreground">
+        <ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />
+        <p>
+          <strong className="text-foreground">Administrador:</strong> todo el panel, incluidos usuarios, configuración, formulario y auditoría.{" "}
+          <strong className="text-foreground">Asesor:</strong> dashboard, expedientes, mensajes, notas internas y documentos.
+        </p>
+      </div>
     </div>
   );
 }

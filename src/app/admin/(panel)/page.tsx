@@ -23,7 +23,8 @@ const CARDS: { status: FileStatus | "ALL"; label: string; tone: string }[] = [
   { status: "EXPIRED", label: STATUS_LABELS.EXPIRED, tone: "bg-white" },
 ];
 
-export default async function AdminDashboard() {
+export default async function AdminDashboard(props: PageProps<"/admin">) {
+  const denied = (await props.searchParams).acceso === "denegado";
   await sweepExpired();
   const soon = new Date(nowMs() + 5 * 86400_000);
   const [grouped, total, recentSubmitted, unreadThreads, expiringSoon] = await Promise.all([
@@ -51,6 +52,11 @@ export default async function AdminDashboard() {
   return (
     <div className="mx-auto max-w-7xl">
       <PageHeader title="Dashboard" description="Resumen de los expedientes y la actividad reciente." />
+      {denied && (
+        <p role="alert" className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+          Esa sección es solo para administradores. Si necesita acceso, pídaselo a un administrador.
+        </p>
+      )}
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {CARDS.map((c) => {

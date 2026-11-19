@@ -1,24 +1,36 @@
 "use client";
 
-import { ClipboardList, FileCog, History, LayoutDashboard, MessageSquare, Settings } from "lucide-react";
+import { ClipboardList, FileCog, History, LayoutDashboard, MessageSquare, Settings, UserRound, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-const ITEMS = [
+type Item = { href: string; label: string; icon: typeof LayoutDashboard; exact?: boolean; badgeKey?: "submitted" | "unread"; adminOnly?: boolean };
+
+const ITEMS: Item[] = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { href: "/admin/expedientes", label: "Expedientes", icon: ClipboardList, badgeKey: "submitted" as const },
-  { href: "/admin/mensajes", label: "Mensajes", icon: MessageSquare, badgeKey: "unread" as const },
-  { href: "/admin/formulario", label: "Formulario", icon: FileCog },
-  { href: "/admin/auditoria", label: "Auditoría", icon: History },
-  { href: "/admin/configuracion", label: "Configuración", icon: Settings },
+  { href: "/admin/expedientes", label: "Expedientes", icon: ClipboardList, badgeKey: "submitted" },
+  { href: "/admin/mensajes", label: "Mensajes", icon: MessageSquare, badgeKey: "unread" },
+  { href: "/admin/formulario", label: "Formulario", icon: FileCog, adminOnly: true },
+  { href: "/admin/usuarios", label: "Usuarios", icon: Users, adminOnly: true },
+  { href: "/admin/auditoria", label: "Auditoría", icon: History, adminOnly: true },
+  { href: "/admin/configuracion", label: "Configuración", icon: Settings, adminOnly: true },
+  { href: "/admin/cuenta", label: "Mi cuenta", icon: UserRound },
 ];
 
-export function SidebarNav({ badges, onNavigate }: { badges: { submitted: number; unread: number }; onNavigate?: () => void }) {
+export function SidebarNav({
+  badges,
+  isAdmin,
+  onNavigate,
+}: {
+  badges: { submitted: number; unread: number };
+  isAdmin: boolean;
+  onNavigate?: () => void;
+}) {
   const pathname = usePathname();
   return (
     <nav className="space-y-0.5" aria-label="Panel">
-      {ITEMS.map((item) => {
+      {ITEMS.filter((i) => isAdmin || !i.adminOnly).map((item) => {
         const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
         const badge = item.badgeKey ? badges[item.badgeKey] : 0;
         return (

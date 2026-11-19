@@ -1,6 +1,5 @@
 import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { hash } from "@node-rs/argon2";
 import { PrismaClient, type Prisma } from "../src/generated/prisma/client";
 import { DEFAULT_PRIVACY_POLICY, FORM_V1, SECURITY_QUESTIONS } from "./form-definition";
 
@@ -19,19 +18,7 @@ async function main() {
     await db.securityQuestion.createMany({ data: SECURITY_QUESTIONS.map((text, order) => ({ text, order })) });
   }
 
-  // 3. Administrador inicial
-  const email = process.env.SEED_ADMIN_EMAIL?.toLowerCase();
-  const password = process.env.SEED_ADMIN_PASSWORD;
-  if (email && password && !(await db.adminUser.findUnique({ where: { email } }))) {
-    await db.adminUser.create({
-      data: {
-        email,
-        name: process.env.SEED_ADMIN_NAME || "Asesor",
-        passwordHash: await hash(password, { memoryCost: 19456, timeCost: 2, parallelism: 1 }),
-      },
-    });
-    console.log(`Administrador creado: ${email}`);
-  }
+  // 3. Usuarios: el primer Administrador se crea desde /admin/login (configuración inicial).
 
   // 4. Plantilla del formulario v1
   const template = await db.formTemplate.upsert({

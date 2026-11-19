@@ -1,3 +1,4 @@
+import { requireAdmin } from "@/server/guards";
 import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -15,6 +16,7 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 export default async function VersionPage(props: PageProps<"/admin/formulario/[versionId]">) {
+  await requireAdmin("ADMIN");
   const { versionId } = await props.params;
   const version = await db.formTemplateVersion.findUnique({ where: { id: versionId } });
   if (!version) notFound();

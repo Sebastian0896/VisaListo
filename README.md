@@ -15,12 +15,13 @@ La base de datos es PostgreSQL en **Supabase** (proyecto de desarrollo y proyect
 ```powershell
 npm install
 npm run db:migrate   # aplica las migraciones
-npm run db:seed      # formulario v1, preguntas de seguridad, configuración y asesor inicial
+npm run db:seed      # formulario v1, preguntas de seguridad y configuración
 npm run dev          # http://localhost:3002
 ```
 
 - Portal público: `/` · Comenzar: `/comenzar` · Recuperar: `/recuperar`
-- Panel del asesor: `/admin` (credenciales iniciales en `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` del `.env`; cámbielas).
+- Panel de gestión: `/admin`. Si no existe ningún Administrador, `/admin/login` muestra la **configuración inicial** para crearlo (en producción exige `ADMIN_SETUP_TOKEN`). Después, el Administrador crea asesores en «Usuarios».
+- Roles: **Administrador** (todo: usuarios, configuración, formulario, auditoría) y **Asesor** (dashboard, expedientes, mensajes, notas y PDF).
 
 ## Arquitectura
 

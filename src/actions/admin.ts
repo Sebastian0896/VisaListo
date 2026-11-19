@@ -10,15 +10,9 @@ import { db } from "@/lib/db";
 import { getSettings } from "@/lib/settings";
 import { ADMIN_TRANSITIONS, STATUS_LABELS } from "@/lib/status";
 import { addDays } from "@/server/files";
-import { getAdmin } from "@/server/guards";
+import { assertAdmin } from "@/server/guards";
 
 type Result = { ok: true } | { ok: false; error: string };
-
-async function admin() {
-  const a = await getAdmin();
-  if (!a) throw new Error("No autorizado");
-  return a;
-}
 
 function revalidateFile(fileId: string) {
   revalidatePath(`/admin/expedientes/${fileId}`);
@@ -50,7 +44,7 @@ export async function adminLogoutAction() {
 const idSchema = z.string().min(1).max(40);
 
 export async function changeStatusAction(fileId: string, to: FileStatus): Promise<Result> {
-  const a = await admin();
+  const a = await assertAdmin();
   idSchema.parse(fileId);
   const file = await db.applicationFile.findUnique({ where: { id: fileId } });
   if (!file) return { ok: false, error: "Expediente no encontrado" };
@@ -70,7 +64,7 @@ export async function changeStatusAction(fileId: string, to: FileStatus): Promis
 }
 
 export async function requestCorrectionsAction(fileId: string, text: string): Promise<Result> {
-  const a = await admin();
+  const a = await assertAdmin();
   const body = z.string().trim().min(5, "Describa qué debe corregirse").max(3000).safeParse(text);
   if (!body.success) return { ok: false, error: body.error.issues[0].message };
   const file = await db.applicationFile.findUnique({ where: { id: fileId } });
@@ -94,7 +88,7 @@ export async function requestCorrectionsAction(fileId: string, text: string): Pr
 }
 
 export async function markReviewedAction(fileId: string, comments: string): Promise<Result> {
-  const a = await admin();
+  const a = await assertAdmin();
   const file = await db.applicationFile.findUnique({ where: { id: fileId } });
   if (!file) return { ok: false, error: "Expediente no encontrado" };
   if (!ADMIN_TRANSITIONS[file.status].includes("REVIEWED")) return { ok: false, error: "El expediente no puede marcarse como revisado en su estado actual." };
@@ -110,7 +104,7 @@ export async function markReviewedAction(fileId: string, comments: string): Prom
 }
 
 export async function reopenAction(fileId: string, days?: number): Promise<Result> {
-  const a = await admin();
+  const a = await assertAdmin();
   const file = await db.applicationFile.findUnique({ where: { id: fileId } });
   if (!file) return { ok: false, error: "Expediente no encontrado" };
   if (!ADMIN_TRANSITIONS[file.status].includes("REOPENED")) return { ok: false, error: "El expediente no puede reabrirse en su estado actual." };
@@ -130,7 +124,7 @@ export async function reopenAction(fileId: string, days?: number): Promise<Resul
 }
 
 export async function extendValidityAction(fileId: string, days: number): Promise<Result> {
-  const a = await admin();
+  const a = await assertAdmin();
   const d = z.coerce.number().int().min(1, "Mínimo 1 día").max(365, "Máximo 365 días").safeParse(days);
   if (!d.success) return { ok: false, error: d.error.issues[0].message };
   const file = await db.applicationFile.findUnique({ where: { id: fileId } });
@@ -158,7 +152,7 @@ export async function extendValidityAction(fileId: string, days: number): Promis
 // ───────────── Notas y mensajes ─────────────
 
 export async function addNoteAction(fileId: string, body: string): Promise<Result> {
-  const a = await admin();
+  const a = await assertAdmin();
   const text = z.string().trim().min(2, "Escriba la nota").max(4000).safeParse(body);
   if (!text.success) return { ok: false, error: text.error.issues[0].message };
   await db.internalNote.create({ data: { applicationFileId: fileId, adminUserId: a.id, body: text.data } });
@@ -168,7 +162,7 @@ export async function addNoteAction(fileId: string, body: string): Promise<Resul
 }
 
 export async function sendAdminMessageAction(fileId: string, input: { message: string }): Promise<Result> {
-  const a = await admin();
+  const a = await assertAdmin();
   const text = z.string().trim().min(2, "Escriba un mensaje").max(2000).safeParse(input.message);
   if (!text.success) return { ok: false, error: text.error.issues[0].message };
   const file = await db.applicationFile.findUnique({ where: { id: fileId }, select: { id: true } });
@@ -204,7 +198,7 @@ const settingsSchema = z.object({
 export type SettingsInput = z.input<typeof settingsSchema>;
 
 export async function updateSettingsAction(input: SettingsInput): Promise<Result> {
-  const a = await admin();
+  const a = await assertAdmin("ADMIN");
   const parsed = settingsSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Datos no válidos" };
   const d = parsed.data;
@@ -234,7 +228,7 @@ const helpSchema = z.object({
 
 /** Las orientaciones se pueden editar en cualquier versión (no alteran los datos guardados). */
 export async function updateHelpAction(questionId: string, input: z.input<typeof helpSchema>): Promise<Result> {
-  const a = await admin();
+  const a = await assertAdmin("ADMIN");
   const parsed = helpSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
   const d = parsed.data;
@@ -276,7 +270,7 @@ function parseOptions(text: string) {
 }
 
 export async function updateQuestionAction(questionId: string, input: z.input<typeof questionSchema>): Promise<Result> {
-  const a = await admin();
+  const a = await assertAdmin("ADMIN");
   const parsed = questionSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
   const q = await db.formQuestion.findUnique({ where: { id: questionId }, include: { section: true } });
@@ -310,7 +304,7 @@ const newQuestionSchema = z.object({
 });
 
 export async function addQuestionAction(sectionId: string, input: z.input<typeof newQuestionSchema>): Promise<Result> {
-  const a = await admin();
+  const a = await assertAdmin("ADMIN");
   const parsed = newQuestionSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
   const section = await db.formSection.findUnique({ where: { id: sectionId }, include: { questions: { select: { order: true } } } });
@@ -344,7 +338,7 @@ export async function addQuestionAction(sectionId: string, input: z.input<typeof
 
 /** Crea una nueva versión en borrador copiando otra (estructura, opciones y orientaciones). */
 export async function cloneVersionAction(fromVersionId: string): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
-  const a = await admin();
+  const a = await assertAdmin("ADMIN");
   const from = await db.formTemplateVersion.findUnique({
     where: { id: fromVersionId },
     include: { sections: { include: { questions: { include: { options: true, help: true } } } } },
@@ -396,7 +390,7 @@ export async function cloneVersionAction(fromVersionId: string): Promise<{ ok: t
 }
 
 export async function publishVersionAction(versionId: string): Promise<Result> {
-  const a = await admin();
+  const a = await assertAdmin("ADMIN");
   const v = await db.formTemplateVersion.findUnique({ where: { id: versionId } });
   if (!v || v.status !== "DRAFT") return { ok: false, error: "Solo se puede publicar un borrador." };
   await db.$transaction(async (tx) => {
@@ -409,7 +403,7 @@ export async function publishVersionAction(versionId: string): Promise<Result> {
 }
 
 export async function toggleVerifiedAction(versionId: string, verified: boolean): Promise<Result> {
-  const a = await admin();
+  const a = await assertAdmin("ADMIN");
   await db.formTemplateVersion.update({ where: { id: versionId }, data: { verifiedAt: verified ? new Date() : null } });
   await audit({ action: "template.updated", actorType: "ADMIN", actorId: a.id, details: { kind: verified ? "version_verified" : "version_unverified" } });
   revalidatePath("/admin/formulario");

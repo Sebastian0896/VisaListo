@@ -67,10 +67,16 @@ enum DocumentKind {
 
 // ───────────────────────────── Administración ─────────────────────────────
 
+enum AdminRole {
+  ADMIN // Administrador: todo, incluidos usuarios, configuración y formulario
+  ADVISOR // Asesor: expedientes, mensajes, notas y documentos
+}
+
 model AdminUser {
   id           String    @id @default(cuid())
   email        String    @unique
   name         String
+  role         AdminRole @default(ADVISOR)
   passwordHash String
   active       Boolean   @default(true)
   lastLoginAt  DateTime?

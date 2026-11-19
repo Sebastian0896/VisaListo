@@ -26,6 +26,7 @@ export type AuditAction =
   | "admin.password_changed"
   | "admin.created"
   | "admin.status_changed"
+  | "admin.role_changed"
   | "settings.updated"
   | "template.updated";
 
@@ -52,7 +53,8 @@ export const AUDIT_LABELS: Record<string, string> = {
   "admin.account_updated": "Cuenta del asesor actualizada",
   "admin.password_changed": "Contraseña del asesor cambiada",
   "admin.created": "Asesor creado",
-  "admin.status_changed": "Asesor activado / desactivado",
+  "admin.status_changed": "Usuario activado / desactivado",
+  "admin.role_changed": "Rol de usuario cambiado",
   "settings.updated": "Configuración actualizada",
   "template.updated": "Formulario modificado",
 };

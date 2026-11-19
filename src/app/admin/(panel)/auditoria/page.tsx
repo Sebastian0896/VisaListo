@@ -1,3 +1,4 @@
+import { requireAdmin } from "@/server/guards";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader } from "@/components/admin/page-header";
@@ -12,6 +13,7 @@ import { formatDateTime } from "@/lib/format";
 export const metadata: Metadata = { title: "Auditoría" };
 
 export default async function AuditPage(props: PageProps<"/admin/auditoria">) {
+  await requireAdmin("ADMIN");
   const sp = await props.searchParams;
   const action = typeof sp.accion === "string" ? sp.accion : "";
   const where: Prisma.AuditLogWhereInput = action && AUDIT_LABELS[action] ? { action } : {};
