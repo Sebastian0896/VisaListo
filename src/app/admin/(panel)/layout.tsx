@@ -1,5 +1,6 @@
 import { LogOut } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { adminLogoutAction } from "@/actions/admin";
 import { MobileNav } from "@/components/admin/mobile-nav";
 import { SidebarNav } from "@/components/admin/sidebar-nav";
@@ -34,8 +35,10 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
           <SidebarNav badges={badges} />
         </div>
         <div className="border-t border-sidebar-border px-2 pt-3">
-          <p className="truncate text-sm font-medium">{admin.name}</p>
-          <p className="truncate text-xs text-sidebar-foreground/60">{admin.email}</p>
+          <Link href="/admin/configuracion#cuenta" className="block rounded-md hover:text-white" title="Mi cuenta">
+            <p className="truncate text-sm font-medium">{admin.name}</p>
+            <p className="truncate text-xs text-sidebar-foreground/60">{admin.email}</p>
+          </Link>
           <form action={adminLogoutAction} className="mt-2">
             <Button type="submit" variant="ghost" size="sm" className="w-full justify-start text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground">
               <LogOut /> Cerrar sesión

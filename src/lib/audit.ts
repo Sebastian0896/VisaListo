@@ -22,6 +22,10 @@ export type AuditAction =
   | "consent.accepted"
   | "admin.login"
   | "admin.login_failed"
+  | "admin.account_updated"
+  | "admin.password_changed"
+  | "admin.created"
+  | "admin.status_changed"
   | "settings.updated"
   | "template.updated";
 
@@ -45,6 +49,10 @@ export const AUDIT_LABELS: Record<string, string> = {
   "consent.accepted": "Aceptación de política",
   "admin.login": "Inicio de sesión del asesor",
   "admin.login_failed": "Inicio de sesión fallido",
+  "admin.account_updated": "Cuenta del asesor actualizada",
+  "admin.password_changed": "Contraseña del asesor cambiada",
+  "admin.created": "Asesor creado",
+  "admin.status_changed": "Asesor activado / desactivado",
   "settings.updated": "Configuración actualizada",
   "template.updated": "Formulario modificado",
 };
