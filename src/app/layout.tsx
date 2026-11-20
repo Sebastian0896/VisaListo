@@ -13,6 +13,10 @@ const mono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
+  // Base para enlaces absolutos (imagen para compartir, etc.)
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://formuguia.com"),
+  applicationName: "FormuGuía",
+  openGraph: { siteName: "FormuGuía", locale: "es_DO", type: "website" },
   title: { default: "FormuGuía · Preparación guiada del formulario DS-160", template: "%s · FormuGuía" },
   description:
     "FormuGuía: plataforma privada de preparación guiada y asesoría para el formulario DS-160. No es un sitio del Gobierno de los Estados Unidos.",

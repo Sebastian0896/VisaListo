@@ -15,7 +15,7 @@ export default async function AdminLoginPage() {
     <div className="grid min-h-screen place-items-center bg-[radial-gradient(70%_60%_at_50%_0%,var(--accent),transparent)] px-4 py-10">
       <div className="w-full max-w-sm space-y-6">
         <div className="flex flex-col items-center text-center">
-          <BrandMark className="size-11" />
+          <BrandMark className="size-14" />
           <h1 className="mt-4 text-xl font-semibold tracking-tight">{setup.needsSetup ? "Configuración inicial" : "Panel de gestión"}</h1>
           <p className="text-sm text-muted-foreground">
             {setup.needsSetup ? "Cree la cuenta del administrador principal." : "Acceso restringido al personal autorizado."}

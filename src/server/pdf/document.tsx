@@ -1,5 +1,5 @@
 import "server-only";
-import { Document, Page, StyleSheet, Text, View, renderToBuffer } from "@react-pdf/renderer";
+import { Circle, Document, Page, Path, Polygon, StyleSheet, Svg, Text, View, renderToBuffer } from "@react-pdf/renderer";
 import { displayValue, visibleQuestions } from "@/components/shared/answers-view";
 import { PRIVATE_MARK } from "@/components/shared/print-document";
 import type { FileStatus } from "@/generated/prisma/enums";
@@ -61,8 +61,18 @@ function PdfDoc(p: PdfInput) {
     <Document title={`Preparación ${p.code}`} author={p.platformName} subject="Documento privado de preparación" creator={p.platformName}>
       <Page size={p.size} style={s.page} wrap>
         <Text style={s.mark} fixed>{PRIVATE_MARK}</Text>
-        <Text style={s.title}>Formulario de preparación</Text>
-        <Text style={s.subtitle}>{p.platformName}  ·  {p.applicantName}</Text>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Svg viewBox="-33 -30 64 64" style={{ width: 34, height: 34, marginRight: 10 }}>
+            <Path d="M-30 30 q4 -12 14 -16" fill="none" stroke="#2bc4b1" strokeWidth={3.5} strokeLinecap="round" strokeDasharray="1 7" />
+            <Polygon points="28,-28 -26,4 -4,4" fill="#1e2f5c" />
+            <Polygon points="28,-28 -4,4 -4,26" fill="#14998a" />
+            <Circle cx={-4} cy={4} r={4} fill="#ffffff" stroke="#1e2f5c" strokeWidth={2} />
+          </Svg>
+          <View>
+            <Text style={s.title}>Formulario de preparación</Text>
+            <Text style={s.subtitle}>{p.platformName}  ·  {p.applicantName}</Text>
+          </View>
+        </View>
         <View style={s.meta}>
           {[
             ["Expediente", p.code],

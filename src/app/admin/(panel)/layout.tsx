@@ -27,7 +27,7 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
     <div className="flex min-h-screen">
       <aside className="no-print sticky top-0 hidden h-screen w-64 shrink-0 flex-col bg-sidebar p-3 text-sidebar-foreground lg:flex">
         <div className="flex items-center gap-2.5 px-2 py-3">
-          <BrandMark className="bg-sidebar-primary text-sidebar-primary-foreground" />
+          <BrandMark className="text-sidebar-foreground [--brand-hole:var(--sidebar)]" />
           <div className="leading-tight">
             <p className="text-sm font-semibold">{settings.platformName}</p>
             <p className="text-[11px] text-sidebar-foreground/60">Panel de gestión</p>
