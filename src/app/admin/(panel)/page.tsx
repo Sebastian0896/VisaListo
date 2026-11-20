@@ -10,6 +10,8 @@ import { EXPIRABLE, STATUS_LABELS } from "@/lib/status";
 import { cn } from "@/lib/utils";
 import { fileScope } from "@/server/advisors";
 import { requireAdmin } from "@/server/guards";
+import { storageConfigured } from "@/lib/storage";
+import { purgeExpiredDocuments } from "@/server/documents";
 import { sweepExpired } from "@/server/files";
 
 export const metadata: Metadata = { title: "Dashboard" };
@@ -30,6 +32,8 @@ export default async function AdminDashboard(props: PageProps<"/admin">) {
   const me = await requireAdmin();
   const scope = fileScope(me);
   await sweepExpired();
+  // Respaldo del cron diario: elimina fotos de documentos vencidas (no bloquea el dashboard si falla)
+  if (storageConfigured()) await purgeExpiredDocuments().catch((e) => console.error("Borrado de documentos:", (e as Error).message));
   const soon = new Date(nowMs() + 5 * 86400_000);
   const [grouped, total, recentSubmitted, unreadThreads, expiringSoon] = await Promise.all([
     db.applicationFile.groupBy({ by: ["status"], where: scope, _count: { _all: true } }),

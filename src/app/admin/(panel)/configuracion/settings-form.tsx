@@ -30,6 +30,7 @@ const GROUPS: { title: string; description: string; fields: Field[] }[] = [
       { name: "validityDays", label: "Período de vigencia (días)", type: "number" },
       { name: "expiryWarningDays", label: "Mostrar alerta cuando falten (días)", type: "number" },
       { name: "expiryMessage", label: "Mensaje de vencimiento", type: "textarea", rows: 2 },
+      { name: "documentRetentionDays", label: "Conservar fotos de documentos (días después de «Revisado»)", type: "number", hint: "Pasado ese plazo, las imágenes del pasaporte y la cédula se eliminan automáticamente." },
     ],
   },
   {

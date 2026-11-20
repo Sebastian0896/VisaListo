@@ -18,6 +18,9 @@ import { cn } from "@/lib/utils";
 import { getAdminFile } from "@/server/admin-file";
 import { requireAdmin } from "@/server/guards";
 import { ReassignAdvisor } from "@/components/admin/reassign-advisor";
+import { DocumentViewer } from "@/components/admin/document-viewer";
+import { PassportVerifyButton } from "@/components/admin/passport-verify";
+import { activeDocuments } from "@/server/documents";
 import type { FileStatus } from "@/generated/prisma/enums";
 
 export const metadata: Metadata = { title: "Expediente" };
@@ -40,6 +43,13 @@ export default async function AdminFilePage(props: PageProps<"/admin/expedientes
   const { file, sections, answers, progress, name } = data;
   const settings = await getSettings();
   const isAdmin = me.role === "ADMIN";
+  const docs = await activeDocuments(file.id);
+  const passportDoc = docs.find((d) => d.kind === "PASSPORT");
+  const viewerDocs = docs
+    .sort((a, b) => (a.kind === "PASSPORT" ? -1 : b.kind === "PASSPORT" ? 1 : 0))
+    .map((d) => ({ id: d.id, label: d.kind === "PASSPORT" ? "Pasaporte" : "Cédula", mimeType: d.mimeType, createdAt: d.createdAt.toISOString() }));
+  const idSections = sections.filter((s) => s.key === "personal" || s.key === "passport");
+  const purged = !passportDoc && (await db.document.count({ where: { applicationFileId: file.id, kind: "PASSPORT" } })) > 0;
   const panelUsers = isAdmin ? await db.adminUser.findMany({ where: { active: true }, orderBy: { name: "asc" }, select: { id: true, name: true } }) : [];
 
   // Al abrir el expediente, los mensajes del cliente quedan como leídos
@@ -80,6 +90,35 @@ export default async function AdminFilePage(props: PageProps<"/admin/expedientes
 
       <div className="grid gap-6 xl:grid-cols-[1fr_22rem]">
         <div className="min-w-0 space-y-6">
+          {/* Verificación de documentos */}
+          <section className="space-y-3">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h2 className="text-lg font-semibold">Verificación de documentos</h2>
+              <span className="text-sm text-muted-foreground">{viewerDocs.length ? `${viewerDocs.length} documento(s)` : purged ? "Imágenes eliminadas por retención" : "Sin documentos"}</span>
+            </div>
+            <PassportVerifyButton
+              fileId={file.id}
+              hasPassport={!!passportDoc}
+              verified={!!file.passportVerifiedAt}
+              verifiedLabel={file.passportVerifiedAt ? `Verificado por ${file.passportVerifiedBy?.name ?? "un asesor"} el ${formatDateTime(file.passportVerifiedAt)}` : null}
+            />
+            {viewerDocs.length > 0 && (
+              <div className="grid overflow-hidden rounded-2xl border bg-card shadow-sm lg:grid-cols-2">
+                <div className="border-b lg:border-r lg:border-b-0">
+                  <DocumentViewer documents={viewerDocs} />
+                </div>
+                <div className="max-h-[40rem] overflow-y-auto px-5 py-2">
+                  {idSections.map((s) => (
+                    <div key={s.key} className="py-2">
+                      <h3 className="pt-2 text-sm font-semibold text-primary">{s.title}</h3>
+                      <SectionAnswers section={s} answers={answers} dense />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </section>
+
           {/* Respuestas */}
           <section className="space-y-3">
             <div className="flex items-baseline justify-between">

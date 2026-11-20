@@ -87,6 +87,10 @@ export async function submitFileAction(input: { message?: string; declaration: b
   if (progress.percent < 100) {
     return { ok: false, error: "Aún hay preguntas obligatorias sin responder. Revise las secciones marcadas como pendientes." };
   }
+  const passport = await db.document.findFirst({ where: { applicationFileId: fileId, kind: "PASSPORT", deletedAt: null }, select: { id: true } });
+  if (!passport) {
+    return { ok: false, error: "Suba la foto de su pasaporte en la sección «Pasaporte» antes de enviar." };
+  }
   const settings = await getSettings();
   const ipHash = await getClientIpHash();
   const from = file.status;

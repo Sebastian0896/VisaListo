@@ -3,6 +3,7 @@ import { cache } from "react";
 import { db } from "@/lib/db";
 import { getSettings, whatsappLink } from "@/lib/settings";
 import { computeOverallProgress, getAnswers } from "./answers";
+import { activeDocuments } from "./documents";
 import { clientCanEdit } from "./files";
 import { loadFormVersion } from "./form";
 import { requireClientFile } from "./guards";
@@ -49,13 +50,17 @@ function titleCase(word: string) {
 /** Datos del portal del cliente autenticado (una sola carga por solicitud). */
 export const getPortalData = cache(async () => {
   const file = await requireClientFile();
-  const [sections, answers, settings, unread] = await Promise.all([
+  const [sections, answers, settings, unread, documents, docConsent] = await Promise.all([
     loadFormVersion(file.templateVersionId),
     getAnswers(file.id),
     getSettings(),
     db.message.count({ where: { applicationFileId: file.id, senderType: "ADMIN", readAt: null } }),
+    activeDocuments(file.id),
+    db.consentRecord.findFirst({ where: { applicationFileId: file.id, kind: "document_processing" }, select: { id: true } }),
   ]);
   const progress = computeOverallProgress(sections, answers);
   const contact = buildContact(file.advisor, settings, file.uniqueCode);
-  return { file, sections, answers, settings, progress, unread, contact, canEdit: clientCanEdit(file) };
+  const passport = documents.find((d) => d.kind === "PASSPORT") ?? null;
+  const nationalId = documents.find((d) => d.kind === "NATIONAL_ID") ?? null;
+  return { file, sections, answers, settings, progress, unread, contact, passport, nationalId, docConsent: !!docConsent, canEdit: clientCanEdit(file) };
 });

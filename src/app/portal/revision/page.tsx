@@ -10,9 +10,9 @@ import { SubmitPanel } from "./submit-panel";
 export const metadata: Metadata = { title: "Revisar y enviar" };
 
 export default async function ReviewPage() {
-  const { file, sections, answers, progress, canEdit } = await getPortalData();
+  const { file, sections, answers, progress, canEdit, passport } = await getPortalData();
   const pending = progress.perSection.filter((s) => !s.completed);
-  const canSubmit = canEdit && file.status !== "PENDING_START" && progress.percent === 100;
+  const canSubmit = canEdit && file.status !== "PENDING_START" && progress.percent === 100 && !!passport;
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-8">
@@ -61,7 +61,7 @@ export default async function ReviewPage() {
         })}
       </div>
 
-      <SubmitPanel canSubmit={canSubmit} canEdit={canEdit} status={file.status} pendingCount={progress.total - progress.done} />
+      <SubmitPanel canSubmit={canSubmit} canEdit={canEdit} status={file.status} pendingCount={progress.total - progress.done} missingPassport={!passport} />
     </div>
   );
 }

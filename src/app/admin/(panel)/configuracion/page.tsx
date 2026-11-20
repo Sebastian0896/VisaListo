@@ -22,6 +22,7 @@ export default async function SettingsPage() {
           whatsappMessage: s.whatsappMessage,
           validityDays: s.validityDays,
           expiryWarningDays: s.expiryWarningDays,
+          documentRetentionDays: s.documentRetentionDays,
           welcomeMessage: s.welcomeMessage,
           expiryMessage: s.expiryMessage,
           contactEmail: s.contactEmail ?? "",

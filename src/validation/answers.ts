@@ -51,6 +51,22 @@ function groupFieldSchema(f: GroupFieldDef) {
 }
 
 /**
+ * Cédula dominicana: 11 dígitos; el último es verificador (algoritmo de Luhn, pesos 1-2).
+ * Solo se valida si el valor tiene 11 dígitos, para no rechazar documentos de otros países.
+ */
+export function isValidDominicanCedula(value: string): boolean | null {
+  const digits = value.replace(/[\s-]/g, "");
+  if (!/^\d{11}$/.test(digits)) return null; // no es formato dominicano: no se evalúa
+  let sum = 0;
+  for (let i = 0; i < 10; i++) {
+    let n = Number(digits[i]) * (i % 2 === 0 ? 1 : 2);
+    if (n > 9) n -= 9;
+    sum += n;
+  }
+  return (10 - (sum % 10)) % 10 === Number(digits[10]);
+}
+
+/**
  * Valida el formato de una respuesta. Un valor vacío siempre es válido para guardar
  * (el guardado es incremental); la obligatoriedad se evalúa al revisar/enviar.
  */
@@ -77,6 +93,9 @@ export function validateAnswer(q: Pick<ClientQuestion, "type" | "options" | "con
   }
   if (typeof value !== "string") return "Formato no válido";
   if (value.trim() === "") return null;
+  if (q.config.idFormat === "cedula_do" && isValidDominicanCedula(value) === false) {
+    return "El número de cédula no es válido. Revise los 11 dígitos (ej.: 001-1234567-3).";
+  }
   const r = scalarSchema(q.type, { options: q.options, ...q.config }).safeParse(value);
   return r.success ? null : (r.error.issues[0]?.message ?? "Valor no válido");
 }

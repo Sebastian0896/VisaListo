@@ -26,6 +26,7 @@ export function SectionForm({
   prevHref,
   nextHref,
   isLast,
+  beforeQuestions,
 }: {
   section: ClientSection;
   initial: AnswerMap;
@@ -35,6 +36,8 @@ export function SectionForm({
   prevHref: string | null;
   nextHref: string | null;
   isLast: boolean;
+  /** Contenido entre la cabecera y las preguntas (p. ej., subida de documentos) */
+  beforeQuestions?: React.ReactNode;
 }) {
   const router = useRouter();
   const defaults = useMemo(() => {
@@ -219,6 +222,8 @@ export function SectionForm({
           </div>
         )}
       </div>
+
+      {beforeQuestions}
 
       {/* Preguntas */}
       <div className="space-y-7 rounded-2xl border bg-card p-5 shadow-sm sm:p-6">

@@ -249,10 +249,10 @@ export const FORM_V1: SectionDef[] = [
         label: "Número de identificación nacional",
         type: "TEXT",
         sensitive: true,
-        config: { maxLength: 40 },
+        config: { maxLength: 40, idFormat: "cedula_do" },
         help: {
           guidance: "Número de su documento de identidad nacional (por ejemplo, la cédula).",
-          example: "001-1234567-8",
+          example: "001-1234567-3",
           notApplicable: "Si su país no emite documento de identidad nacional, déjelo vacío.",
         },
       },
@@ -1137,6 +1137,8 @@ export const DEFAULT_PRIVACY_POLICY = `## Política de privacidad
 **Responsable.** Esta plataforma es un servicio privado de preparación y asesoría. No pertenece al Gobierno de los Estados Unidos ni está afiliada al Departamento de Estado.
 
 **Qué información recopilamos.** Los datos que usted ingresa en el formulario de preparación (identidad, contacto, pasaporte, viaje, familia, empleo, antecedentes), los mensajes que intercambia con su asesor y registros técnicos de actividad (fechas de acceso y acciones realizadas).
+
+**Copia de su documento.** Para que su asesor compruebe que los datos coinciden con su pasaporte, se le pide una foto de la página de datos (y, opcionalmente, de su cédula). La imagen se guarda cifrada en un almacenamiento privado, solo la pueden ver usted y su asesor, cada consulta queda registrada y se elimina automáticamente después de la revisión, según el plazo configurado.
 
 **Para qué la usamos.** Exclusivamente para revisar su información, orientarle y preparar su solicitud. No vendemos ni compartimos sus datos con terceros con fines comerciales.
 

@@ -36,6 +36,8 @@ export type QuestionConfig = {
   fields?: GroupFieldDef[];
   maxItems?: number;
   addLabel?: string;
+  /** Validación de formato de identificación: "cedula_do" = cédula dominicana con dígito verificador */
+  idFormat?: "cedula_do";
 };
 
 export type ShowIf = { question: string; equals: string | string[] };

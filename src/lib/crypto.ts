@@ -50,3 +50,23 @@ export function hashIp(ip: string | null | undefined): string {
   const secret = process.env.IP_HASH_SECRET ?? "dev-ip-secret";
   return createHmac("sha256", secret).update(ip || "unknown").digest("hex").slice(0, 32);
 }
+
+/**
+ * Cifra un archivo binario (AES-256-GCM). Formato: [1 byte versión][12 IV][16 tag][datos].
+ * Se usa para documentos antes de subirlos al almacenamiento: el proveedor solo ve bytes cifrados.
+ */
+export function encryptBuffer(data: Buffer): Buffer {
+  const iv = randomBytes(12);
+  const cipher = createCipheriv("aes-256-gcm", getKey(), iv);
+  const enc = Buffer.concat([cipher.update(data), cipher.final()]);
+  return Buffer.concat([Buffer.from([1]), iv, cipher.getAuthTag(), enc]);
+}
+
+export function decryptBuffer(payload: Buffer): Buffer {
+  if (payload.length < 29 || payload[0] !== 1) throw new Error("Formato de archivo cifrado no reconocido");
+  const iv = payload.subarray(1, 13);
+  const tag = payload.subarray(13, 29);
+  const decipher = createDecipheriv("aes-256-gcm", getKey(), iv);
+  decipher.setAuthTag(tag);
+  return Buffer.concat([decipher.update(payload.subarray(29)), decipher.final()]);
+}

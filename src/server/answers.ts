@@ -128,6 +128,7 @@ export async function saveSectionAnswers(fileId: string, sectionKey: string, val
     data: {
       lastActivityAt: now,
       progressPercent: overall.percent,
+      ...(changedKeys.length && (sectionKey === "personal" || sectionKey === "passport") ? { passportVerifiedAt: null, passportVerifiedBy: { disconnect: true } } : {}),
       applicant: Object.keys(applicantData).length ? { update: applicantData } : undefined,
     },
   });

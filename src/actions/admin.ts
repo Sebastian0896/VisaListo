@@ -201,6 +201,7 @@ const settingsSchema = z.object({
   whatsappMessage: z.string().trim().min(5).max(500),
   validityDays: z.coerce.number().int().min(1).max(365),
   expiryWarningDays: z.coerce.number().int().min(0).max(60),
+  documentRetentionDays: z.coerce.number().int().min(1, "Mínimo 1 día").max(365, "Máximo 365 días"),
   welcomeMessage: z.string().trim().max(1000),
   expiryMessage: z.string().trim().max(1000),
   contactEmail: z.string().trim().email("Correo no válido").max(200).or(z.literal("")),
@@ -440,6 +441,25 @@ export async function reassignFileAction(fileId: string, advisorId: string | nul
   if ((file.advisorId ?? null) === (advisorId ?? null)) return { ok: true };
   await db.applicationFile.update({ where: { id: fileId }, data: { advisorId } });
   await audit({ action: "file.assigned", actorType: "ADMIN", actorId: a.id, fileId, details: { from: file.advisorId, advisorId, via: "admin" } });
+  revalidateFile(fileId);
+  return { ok: true };
+}
+
+// ───────────── Verificación contra el pasaporte ─────────────
+
+/** El asesor deja constancia de que comparó los datos del formulario con el pasaporte subido. */
+export async function setPassportVerifiedAction(fileId: string, verified: boolean): Promise<Result> {
+  const a = await fileGuard(fileId);
+  if (!a) return { ok: false, error: "No tiene acceso a este expediente." };
+  if (verified) {
+    const passport = await db.document.findFirst({ where: { applicationFileId: fileId, kind: "PASSPORT", deletedAt: null }, select: { id: true } });
+    if (!passport) return { ok: false, error: "El expediente no tiene foto del pasaporte para verificar." };
+  }
+  await db.applicationFile.update({
+    where: { id: fileId },
+    data: verified ? { passportVerifiedAt: new Date(), passportVerifiedById: a.id } : { passportVerifiedAt: null, passportVerifiedById: null },
+  });
+  await audit({ action: "file.passport_verified", actorType: "ADMIN", actorId: a.id, fileId, details: { verified } });
   revalidateFile(fileId);
   return { ok: true };
 }

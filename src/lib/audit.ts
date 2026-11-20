@@ -18,6 +18,10 @@ export type AuditAction =
   | "file.reviewed"
   | "message.sent"
   | "note.added"
+  | "document.uploaded"
+  | "document.viewed"
+  | "document.purged"
+  | "file.passport_verified"
   | "pdf.client_downloaded"
   | "pdf.admin_downloaded"
   | "consent.accepted"
@@ -47,6 +51,10 @@ export const AUDIT_LABELS: Record<string, string> = {
   "file.reviewed": "Revisión finalizada",
   "message.sent": "Mensaje enviado",
   "note.added": "Nota interna agregada",
+  "document.uploaded": "Documento subido",
+  "document.viewed": "Documento consultado",
+  "document.purged": "Documento eliminado por retención",
+  "file.passport_verified": "Datos verificados contra el pasaporte",
   "pdf.client_downloaded": "PDF descargado (cliente)",
   "pdf.admin_downloaded": "PDF descargado (asesor)",
   "consent.accepted": "Aceptación de política",

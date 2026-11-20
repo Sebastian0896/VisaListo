@@ -63,6 +63,8 @@ enum DocumentKind {
   CLIENT_PDF
   ADMIN_PDF
   UPLOAD
+  PASSPORT // Foto de la página de datos del pasaporte
+  NATIONAL_ID // Foto de la cédula / documento de identidad
 }
 
 // ───────────────────────────── Administración ─────────────────────────────
@@ -93,6 +95,7 @@ model AdminUser {
   reviews  Review[]
   messages Message[]
   files    ApplicationFile[]
+  verifiedFiles ApplicationFile[] @relation("PassportVerifier")
 }
 
 /// Configuración de la plataforma (fila única id = 1)
@@ -103,6 +106,8 @@ model PlatformSettings {
   whatsappNumber   String?
   whatsappMessage  String   @default("Hola, estoy completando mi formulario de preparación y necesito asistencia. Mi código de expediente es: {codigo}")
   validityDays     Int      @default(30)
+  /// Días que se conservan las imágenes de documentos después de que el expediente queda Revisado
+  documentRetentionDays Int @default(30)
   expiryWarningDays Int     @default(5)
   welcomeMessage   String   @default("Bienvenido. Complete su información con calma; su progreso se guarda automáticamente.")
   expiryMessage    String   @default("El período de vigencia de su formulario terminó. Comuníquese con su asesor para solicitar una extensión.")
@@ -268,12 +273,16 @@ model ApplicationFile {
   /// Indicación del asesor visible para el cliente (correcciones solicitadas)
   correctionRequest  String?
   progressPercent    Int        @default(0)
+  /// El asesor comparó los datos con el pasaporte subido
+  passportVerifiedAt   DateTime?
+  passportVerifiedById String?
   updatedAt          DateTime   @updatedAt
 
   applicant        Applicant           @relation(fields: [applicantId], references: [id], onDelete: Cascade)
   templateVersion  FormTemplateVersion @relation(fields: [templateVersionId], references: [id])
   securityQuestion SecurityQuestion    @relation(fields: [securityQuestionId], references: [id])
   advisor          AdminUser?          @relation(fields: [advisorId], references: [id], onDelete: SetNull)
+  passportVerifiedBy AdminUser?        @relation("PassportVerifier", fields: [passportVerifiedById], references: [id], onDelete: SetNull)
 
   sections  ApplicationSection[]
   answers   ApplicationAnswer[]
@@ -384,10 +393,13 @@ model Document {
   sizeBytes         Int?
   createdByType     ActorType
   createdAt         DateTime     @default(now())
+  /// Archivo eliminado del almacenamiento (reemplazo o borrado por retención). El registro se conserva.
+  deletedAt         DateTime?
 
   applicationFile ApplicationFile @relation(fields: [applicationFileId], references: [id], onDelete: Cascade)
 
   @@index([applicationFileId])
+  @@index([kind, deletedAt])
 }
 
 // ───────────────────────────── Seguridad y auditoría ─────────────────────────────

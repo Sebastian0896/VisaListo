@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SectionForm } from "@/components/form/section-form";
+import { DocumentUpload } from "@/components/portal/document-upload";
 import type { AnswerMap } from "@/lib/form-types";
 import { cn } from "@/lib/utils";
 import { getPortalData } from "@/server/portal";
@@ -11,7 +12,8 @@ export const metadata: Metadata = { title: "Formulario" };
 
 export default async function SectionPage(props: PageProps<"/portal/formulario/[seccion]">) {
   const { seccion } = await props.params;
-  const { sections, answers, progress, canEdit } = await getPortalData();
+  const { sections, answers, progress, canEdit, passport, nationalId, docConsent } = await getPortalData();
+  const toExisting = (d: typeof passport) => (d ? { id: d.id, mimeType: d.mimeType, createdAt: d.createdAt.toISOString() } : null);
   const index = sections.findIndex((s) => s.key === seccion);
   if (index === -1) notFound();
   const section = sections[index];
@@ -78,6 +80,31 @@ export default async function SectionPage(props: PageProps<"/portal/formulario/[
           prevHref={prev ? `/portal/formulario/${prev.key}` : null}
           nextHref={next ? `/portal/formulario/${next.key}` : null}
           isLast={!next}
+          beforeQuestions={
+            seccion === "passport" ? (
+              <DocumentUpload
+                kind="PASSPORT"
+                title="Foto de su pasaporte"
+                description="Su asesor la usará para comprobar que los datos del formulario coinciden exactamente con su pasaporte. Es obligatoria para enviar."
+                tips={["Fotografíe la página de datos (la que tiene su foto), completa y sin cortes.", "Use buena luz y evite reflejos sobre la foto y las letras.", "Las dos líneas de letras y signos «<» de abajo deben verse claras."]}
+                required
+                existing={toExisting(passport)}
+                consentGiven={docConsent}
+                canEdit={canEdit}
+              />
+            ) : seccion === "personal" ? (
+              <DocumentUpload
+                kind="NATIONAL_ID"
+                title="Foto de su cédula"
+                description="Opcional. Ayuda a su asesor a confirmar su número de identificación."
+                tips={["Fotografíe el frente de la cédula, completo y legible.", "Evite reflejos sobre el número."]}
+                required={false}
+                existing={toExisting(nationalId)}
+                consentGiven={docConsent}
+                canEdit={canEdit}
+              />
+            ) : null
+          }
         />
       </div>
     </div>

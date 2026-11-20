@@ -20,7 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type { FileStatus } from "@/generated/prisma/enums";
 import { STATUS_DESCRIPTIONS } from "@/lib/status";
 
-export function SubmitPanel({ canSubmit, canEdit, status, pendingCount }: { canSubmit: boolean; canEdit: boolean; status: FileStatus; pendingCount: number }) {
+export function SubmitPanel({ canSubmit, canEdit, status, pendingCount, missingPassport }: { canSubmit: boolean; canEdit: boolean; status: FileStatus; pendingCount: number; missingPassport: boolean }) {
   const router = useRouter();
   const [message, setMessage] = useState("");
   const [declaration, setDeclaration] = useState(false);
@@ -52,7 +52,11 @@ export function SubmitPanel({ canSubmit, canEdit, status, pendingCount }: { canS
         <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-950">
           {status === "PENDING_START"
             ? "Aún no ha comenzado a completar el formulario."
-            : `Complete las ${pendingCount} pregunta(s) obligatoria(s) pendiente(s) para poder enviar.`}
+            : pendingCount > 0
+              ? `Complete las ${pendingCount} pregunta(s) obligatoria(s) pendiente(s) para poder enviar.`
+              : missingPassport
+                ? "Falta la foto de su pasaporte. Súbala en la sección «Pasaporte» para poder enviar."
+                : null}
         </p>
       )}
       <div className="space-y-1.5">

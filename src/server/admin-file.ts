@@ -12,6 +12,7 @@ export async function getAdminFile(fileId: string, viewer: { id: string; role: A
     include: {
       applicant: true,
       advisor: { select: { id: true, name: true, active: true } },
+      passportVerifiedBy: { select: { name: true } },
       securityQuestion: true,
       templateVersion: true,
       notes: { orderBy: { createdAt: "desc" }, include: { adminUser: { select: { name: true } } } },
