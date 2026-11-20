@@ -18,6 +18,8 @@ export type AuditAction =
   | "file.reviewed"
   | "message.sent"
   | "note.added"
+  | "email.sent"
+  | "email.failed"
   | "document.uploaded"
   | "document.viewed"
   | "document.purged"
@@ -51,6 +53,8 @@ export const AUDIT_LABELS: Record<string, string> = {
   "file.reviewed": "Revisión finalizada",
   "message.sent": "Mensaje enviado",
   "note.added": "Nota interna agregada",
+  "email.sent": "Aviso por correo enviado",
+  "email.failed": "Aviso por correo fallido",
   "document.uploaded": "Documento subido",
   "document.viewed": "Documento consultado",
   "document.purged": "Documento eliminado por retención",

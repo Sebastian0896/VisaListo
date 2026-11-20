@@ -2,6 +2,7 @@
 
 import { AuthError } from "next-auth";
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { z } from "zod";
 import { signIn, signOut } from "@/auth";
 import type { FileStatus, Prisma } from "@/generated/prisma/client";
@@ -11,6 +12,7 @@ import { getSettings } from "@/lib/settings";
 import { ADMIN_TRANSITIONS, STATUS_LABELS } from "@/lib/status";
 import { addDays } from "@/server/files";
 import { canAccessFile } from "@/server/advisors";
+import { notifyClient } from "@/server/notifications";
 import { assertAdmin, getAdmin } from "@/server/guards";
 
 type Result = { ok: true } | { ok: false; error: string };
@@ -88,12 +90,13 @@ export async function requestCorrectionsAction(fileId: string, text: string): Pr
   const expiresAt = !file.expiresAt || file.expiresAt <= now ? addDays(now, settings.validityDays) : file.expiresAt;
 
   await db.$transaction(async (tx) => {
-    await tx.applicationFile.update({ where: { id: fileId }, data: { status: "NEEDS_CORRECTIONS", correctionRequest: body.data, expiresAt } });
+    await tx.applicationFile.update({ where: { id: fileId }, data: { status: "NEEDS_CORRECTIONS", correctionRequest: body.data, expiresAt, expiryWarningSentAt: null } });
     await tx.review.create({ data: { applicationFileId: fileId, adminUserId: a.id, outcome: "CORRECTIONS_REQUESTED", comments: body.data } });
     await tx.message.create({ data: { applicationFileId: fileId, senderType: "ADMIN", adminUserId: a.id, message: `Correcciones solicitadas:\n${body.data}` } });
     await audit({ action: "file.corrections_requested", actorType: "ADMIN", actorId: a.id, fileId, details: { from: file.status } }, tx);
     await audit({ action: "file.status_changed", actorType: "ADMIN", actorId: a.id, fileId, details: { from: file.status, to: "NEEDS_CORRECTIONS" } }, tx);
   });
+  after(() => notifyClient(fileId, "corrections"));
   revalidateFile(fileId);
   return { ok: true };
 }
@@ -111,6 +114,7 @@ export async function markReviewedAction(fileId: string, comments: string): Prom
     await audit({ action: "file.reviewed", actorType: "ADMIN", actorId: a.id, fileId }, tx);
     await audit({ action: "file.status_changed", actorType: "ADMIN", actorId: a.id, fileId, details: { from: file.status, to: "REVIEWED" } }, tx);
   });
+  after(() => notifyClient(fileId, "reviewed"));
   revalidateFile(fileId);
   return { ok: true };
 }
@@ -126,7 +130,7 @@ export async function reopenAction(fileId: string, days?: number): Promise<Resul
   const span = days && days > 0 ? Math.min(days, 365) : settings.validityDays;
   const expiresAt = !file.expiresAt || file.expiresAt <= now ? addDays(now, span) : file.expiresAt;
   await db.$transaction(async (tx) => {
-    await tx.applicationFile.update({ where: { id: fileId }, data: { status: "REOPENED", expiresAt } });
+    await tx.applicationFile.update({ where: { id: fileId }, data: { status: "REOPENED", expiresAt, expiryWarningSentAt: null } });
     await audit(
       { action: "file.reopened", actorType: "ADMIN", actorId: a.id, fileId, details: { from: file.status, previousExpiresAt: file.expiresAt?.toISOString() ?? null, expiresAt: expiresAt.toISOString() } },
       tx,
@@ -150,7 +154,7 @@ export async function extendValidityAction(fileId: string, days: number): Promis
   // Un expediente vencido sin enviar vuelve a "En proceso"
   const status: FileStatus = file.status === "EXPIRED" ? (file.submittedAt ? "REOPENED" : "IN_PROGRESS") : file.status;
   await db.$transaction(async (tx) => {
-    await tx.applicationFile.update({ where: { id: fileId }, data: { expiresAt, status } });
+    await tx.applicationFile.update({ where: { id: fileId }, data: { expiresAt, status, expiryWarningSentAt: null } });
     await audit(
       { action: "file.extended", actorType: "ADMIN", actorId: a.id, fileId, details: { days: d.data, previousExpiresAt: file.expiresAt?.toISOString() ?? null, expiresAt: expiresAt.toISOString() } },
       tx,
@@ -183,10 +187,12 @@ export async function sendAdminMessageAction(fileId: string, input: { message: s
   if (!text.success) return { ok: false, error: text.error.issues[0].message };
   const file = await db.applicationFile.findUnique({ where: { id: fileId }, select: { id: true } });
   if (!file) return { ok: false, error: "Expediente no encontrado" };
+  const pendingBefore = await db.message.count({ where: { applicationFileId: fileId, senderType: "ADMIN", readAt: null } });
   await db.message.create({ data: { applicationFileId: fileId, senderType: "ADMIN", adminUserId: a.id, message: text.data } });
   // Responder implica haber leído los mensajes del cliente
   await db.message.updateMany({ where: { applicationFileId: fileId, senderType: "CLIENT", readAt: null }, data: { readAt: new Date() } });
   await audit({ action: "message.sent", actorType: "ADMIN", actorId: a.id, fileId });
+  if (pendingBefore === 0) after(() => notifyClient(fileId, "reply"));
   revalidateFile(fileId);
   revalidatePath("/admin/mensajes");
   return { ok: true };

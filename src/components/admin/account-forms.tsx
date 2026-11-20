@@ -15,10 +15,10 @@ import { cn } from "@/lib/utils";
 
 type Role = keyof typeof ROLE_LABELS;
 
-export function AccountForm({ name, email, whatsappNumber, contactHours }: { name: string; email: string; whatsappNumber: string; contactHours: string }) {
+export function AccountForm({ name, email, whatsappNumber, contactHours, emailNotifications }: { name: string; email: string; whatsappNumber: string; contactHours: string; emailNotifications: boolean }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const form = useForm<AccountInput>({ defaultValues: { name, email, whatsappNumber, contactHours, currentPassword: "", newPassword: "", confirmPassword: "" } });
+  const form = useForm<AccountInput>({ defaultValues: { name, email, whatsappNumber, contactHours, emailNotifications, currentPassword: "", newPassword: "", confirmPassword: "" } });
 
   return (
     <form
@@ -28,7 +28,7 @@ export function AccountForm({ name, email, whatsappNumber, contactHours }: { nam
           const res = await updateAccountAction(v);
           if (!res.ok) return void toast.error(res.error);
           toast.success(v.newPassword ? "Cuenta y contraseña actualizadas" : "Cuenta actualizada");
-          form.reset({ name: v.name, email: v.email.trim().toLowerCase(), whatsappNumber: v.whatsappNumber, contactHours: v.contactHours, currentPassword: "", newPassword: "", confirmPassword: "" });
+          form.reset({ name: v.name, email: v.email.trim().toLowerCase(), whatsappNumber: v.whatsappNumber, contactHours: v.contactHours, emailNotifications: v.emailNotifications, currentPassword: "", newPassword: "", confirmPassword: "" });
           router.refresh();
         }),
       )}
@@ -54,6 +54,14 @@ export function AccountForm({ name, email, whatsappNumber, contactHours }: { nam
           Sus clientes vinculados verán su WhatsApp y su horario dentro de su portal (nunca en páginas públicas). Si no pone un número, verán el WhatsApp general de la oficina.
         </p>
       </div>
+
+      <label className="flex items-start gap-3 rounded-xl border bg-muted/30 p-4 text-sm">
+        <input type="checkbox" className="mt-0.5 size-4 accent-[var(--primary)]" {...form.register("emailNotifications")} />
+        <span>
+          <span className="font-medium">Recibir avisos por correo</span>
+          <span className="block text-xs text-muted-foreground">Formularios enviados, mensajes nuevos y clientes que se vinculan con su código. Se envían a su correo de acceso.</span>
+        </span>
+      </label>
 
       <fieldset className="space-y-3 rounded-xl border bg-muted/30 p-4">
         <legend className="flex items-center gap-1.5 px-1 text-sm font-semibold"><KeyRound className="size-4" /> Cambiar contraseña</legend>

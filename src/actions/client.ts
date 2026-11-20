@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { redirect } from "next/navigation";
 import { audit } from "@/lib/audit";
 import { clearClientSession, getClientFileId, setClientSession } from "@/lib/client-session";
@@ -20,6 +21,7 @@ import {
 } from "@/server/files";
 import { findAdvisorByCode } from "@/server/advisors";
 import { loadFormVersion } from "@/server/form";
+import { notifyAdvisors } from "@/server/notifications";
 import { createFileSchema, messageSchema, recoverSchema, type CreateFileInput, type RecoverInput } from "@/validation/answers";
 
 type Result<T = object> = ({ ok: true } & T) | { ok: false; error: string };
@@ -31,6 +33,10 @@ export async function createFileAction(input: CreateFileInput): Promise<Result<{
   const res = await createApplicationFile({ ...parsed.data, ipHash });
   if (!res.ok) return res;
   await setClientSession(res.fileId);
+  if (res.advisorName) {
+    const fileId = res.fileId;
+    after(() => notifyAdvisors(fileId, "linked"));
+  }
   return { ok: true, code: res.code, question: res.question, advisorName: res.advisorName };
 }
 
@@ -106,6 +112,7 @@ export async function submitFileAction(input: { message?: string; declaration: b
     }
     await audit({ action: "file.submitted", actorType: "CLIENT", fileId, ipHash, details: { from, withMessage: !!message } }, tx);
   });
+  after(() => notifyAdvisors(fileId, "submitted"));
   revalidatePath("/portal");
   return { ok: true };
 }
@@ -120,7 +127,9 @@ export async function sendClientMessageAction(input: { message: string }): Promi
     where: { applicationFileId: fileId, senderType: "CLIENT", createdAt: { gte: new Date(Date.now() - 3600_000) } },
   });
   if (recent >= 20) return { ok: false, error: "Ha enviado muchos mensajes. Espere un momento antes de enviar otro." };
+  const pendingBefore = await db.message.count({ where: { applicationFileId: fileId, senderType: "CLIENT", readAt: null } });
   await db.message.create({ data: { applicationFileId: fileId, senderType: "CLIENT", message: parsed.data.message } });
+  if (pendingBefore === 0) after(() => notifyAdvisors(fileId, "message"));
   await db.applicationFile.update({ where: { id: fileId }, data: { lastActivityAt: new Date() } });
   await audit({ action: "message.sent", actorType: "CLIENT", fileId, ipHash });
   revalidatePath("/portal/mensajes");
@@ -155,5 +164,6 @@ export async function linkAdvisorAction(input: { code: string }): Promise<Result
   if (!res.count) return { ok: false, error: "Su expediente ya tiene un asesor asignado." };
   await audit({ action: "file.assigned", actorType: "CLIENT", fileId, ipHash, details: { advisorId: advisor.id, via: "portal" } });
   revalidatePath("/portal", "layout");
+  after(() => notifyAdvisors(fileId, "linked"));
   return { ok: true, advisorName: advisor.name };
 }

@@ -85,6 +85,8 @@ model AdminUser {
   whatsappNumber String?
   /// Horario de atención que ven sus clientes (ej.: Lunes a viernes, 9:00 a 6:00)
   contactHours   String?
+  /// Recibir avisos por correo (formularios enviados, mensajes, clientes vinculados)
+  emailNotifications Boolean @default(true)
   passwordHash String
   active       Boolean   @default(true)
   lastLoginAt  DateTime?
@@ -275,6 +277,8 @@ model ApplicationFile {
   progressPercent    Int        @default(0)
   /// El asesor comparó los datos con el pasaporte subido
   passportVerifiedAt   DateTime?
+  /// Se envió al cliente el aviso de vencimiento próximo (se reinicia al extender o reabrir)
+  expiryWarningSentAt  DateTime?
   passportVerifiedById String?
   updatedAt          DateTime   @updatedAt
 
