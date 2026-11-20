@@ -101,7 +101,7 @@ model AdminUser {
 /// Configuración de la plataforma (fila única id = 1)
 model PlatformSettings {
   id               Int      @id @default(1)
-  platformName     String   @default("VisaListo")
+  platformName     String   @default("FormuGuía")
   logoUrl          String?
   whatsappNumber   String?
   whatsappMessage  String   @default("Hola, estoy completando mi formulario de preparación y necesito asistencia. Mi código de expediente es: {codigo}")

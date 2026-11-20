@@ -1,4 +1,4 @@
-# VisaListo — preparación del formulario DS-160 (asesoría privada)
+# FormuGuía — preparación guiada del formulario DS-160 (asesoría privada)
 
 Plataforma web para que los solicitantes preparen la información de su formulario DS-160 con orientación en español, y para que el asesor gestione los expedientes.
 

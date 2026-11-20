@@ -13,9 +13,9 @@ const mono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: { default: "VisaListo · Preparación de formulario DS-160", template: "%s · VisaListo" },
+  title: { default: "FormuGuía · Preparación guiada del formulario DS-160", template: "%s · FormuGuía" },
   description:
-    "VisaListo: plataforma privada de preparación y asesoría para el formulario DS-160. No es un sitio del Gobierno de los Estados Unidos.",
+    "FormuGuía: plataforma privada de preparación guiada y asesoría para el formulario DS-160. No es un sitio del Gobierno de los Estados Unidos.",
   robots: { index: true, follow: true },
 };
 
