@@ -7,9 +7,14 @@ import "server-only";
  */
 const BUCKET = "documentos";
 
+/** Valor de una variable de entorno sin espacios ni comillas accidentales ("…" pegadas en Vercel). */
+function cleanEnv(name: string) {
+  return (process.env[name] ?? "").trim().replace(/^["']+|["']+$/g, "").trim();
+}
+
 function config() {
-  const url = process.env.SUPABASE_URL?.replace(/\/$/, "");
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const url = cleanEnv("SUPABASE_URL").replace(/\/$/, "");
+  const key = cleanEnv("SUPABASE_SERVICE_ROLE_KEY");
   if (!url || !key) throw new StorageNotConfigured();
   return { url, key };
 }
@@ -21,7 +26,7 @@ export class StorageNotConfigured extends Error {
 }
 
 export function storageConfigured() {
-  return !!process.env.SUPABASE_URL && !!process.env.SUPABASE_SERVICE_ROLE_KEY;
+  return !!cleanEnv("SUPABASE_URL") && !!cleanEnv("SUPABASE_SERVICE_ROLE_KEY");
 }
 
 function headers(key: string, extra: Record<string, string> = {}) {
@@ -74,4 +79,34 @@ export async function removeObjects(paths: string[]) {
     body: JSON.stringify({ prefixes: paths }),
   });
   if (!res.ok) throw new Error(`No se pudieron eliminar documentos (${res.status})`);
+}
+
+/**
+ * Diagnóstico para el administrador: indica qué falta (sin mostrar valores) y prueba la conexión real.
+ */
+export async function storageDiagnostics() {
+  const url = cleanEnv("SUPABASE_URL");
+  const key = cleanEnv("SUPABASE_SERVICE_ROLE_KEY");
+  const checks = {
+    urlPresent: url.length > 0,
+    urlLooksValid: /^https:\/\/[a-z0-9]+\.supabase\.co\/?$/.test(url),
+    urlHasQuotes: /^["']|["']$/.test(process.env.SUPABASE_URL ?? ""),
+    keyPresent: key.length > 0,
+    keyFormat: key.startsWith("sb_secret_") ? "secret" : key.startsWith("eyJ") ? "legacy" : key.startsWith("sb_publishable_") ? "publishable" : key ? "desconocido" : "vacía",
+    keyHasQuotes: /^["']|["']$/.test(process.env.SUPABASE_SERVICE_ROLE_KEY ?? ""),
+    cronSecretPresent: !!process.env.CRON_SECRET,
+    environment: process.env.VERCEL_ENV ?? process.env.NODE_ENV ?? "desconocido",
+  };
+  let connection: { ok: boolean; detail: string } = { ok: false, detail: "No se probó: faltan variables." };
+  if (checks.urlPresent && checks.keyPresent) {
+    try {
+      const res = await fetch(`${url.replace(/\/$/, "")}/storage/v1/bucket`, { headers: headers(key), cache: "no-store" });
+      connection = res.ok
+        ? { ok: true, detail: "Conexión correcta con Supabase Storage." }
+        : { ok: false, detail: `Supabase respondió ${res.status}${res.status === 401 || res.status === 403 ? " (clave rechazada: revise que sea la Secret key)" : ""}.` };
+    } catch (e) {
+      connection = { ok: false, detail: `No se pudo conectar: ${(e as Error).message}` };
+    }
+  }
+  return { ...checks, connection };
 }

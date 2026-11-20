@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { PageHeader } from "@/components/admin/page-header";
 import { getSettings } from "@/lib/settings";
 import { requireAdmin } from "@/server/guards";
+import { StorageStatus } from "@/components/admin/storage-status";
 import { SettingsForm } from "./settings-form";
 
 export const metadata: Metadata = { title: "Configuración" };
@@ -12,6 +13,7 @@ export default async function SettingsPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <PageHeader title="Configuración" description="Datos de la plataforma, vigencia, contacto y textos informativos." />
+      <StorageStatus />
 
 
       <SettingsForm
