@@ -18,6 +18,7 @@ export default async function PublicLayout({ children }: LayoutProps<"/">) {
           <Brand name={s.platformName} logoUrl={s.logoUrl} />
           <nav className="hidden items-center gap-1 text-sm md:flex" aria-label="Principal">
             <Link href="/#como-funciona" className="rounded-md px-3 py-2 text-muted-foreground hover:text-foreground">Cómo funciona</Link>
+            <Link href="/autoevaluacion" className="rounded-md px-3 py-2 text-muted-foreground hover:text-foreground">Evalúe su perfil</Link>
             <Link href="/#seguridad" className="rounded-md px-3 py-2 text-muted-foreground hover:text-foreground">Seguridad</Link>
             <Link href="/#contacto" className="rounded-md px-3 py-2 text-muted-foreground hover:text-foreground">Contacto</Link>
           </nav>
@@ -40,6 +41,7 @@ export default async function PublicLayout({ children }: LayoutProps<"/">) {
             <ul className="space-y-1.5 text-muted-foreground">
               <li><Link className="hover:text-foreground" href="/comenzar">Comenzar formulario</Link></li>
               <li><Link className="hover:text-foreground" href="/recuperar">Recuperar mi formulario</Link></li>
+              <li><Link className="hover:text-foreground" href="/autoevaluacion">Autoevaluación de su perfil</Link></li>
               <li><Link className="hover:text-foreground" href="/privacidad">Política de privacidad</Link></li>
             </ul>
           </div>

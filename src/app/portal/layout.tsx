@@ -1,4 +1,4 @@
-import { FileText, Home, LogOut, MessageSquare, Printer } from "lucide-react";
+import { ClipboardCheck, FileText, Home, LogOut, MessageSquare, Printer } from "lucide-react";
 import Link from "next/link";
 import { logoutClientAction } from "@/actions/client";
 import { ExpiryCountdown } from "@/components/portal/expiry-countdown";
@@ -19,6 +19,7 @@ export default async function PortalLayout({ children }: LayoutProps<"/portal">)
     { href: "/portal", label: "Resumen", icon: Home },
     { href: `/portal/formulario/${firstSection}`, label: "Formulario", icon: FileText },
     { href: "/portal/mensajes", label: "Mensajes", icon: MessageSquare, badge: unread },
+    { href: "/portal/autoevaluacion", label: "Autoevaluación", icon: ClipboardCheck },
     { href: "/portal/imprimir", label: "Imprimir", icon: Printer },
   ];
   return (

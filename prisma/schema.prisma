@@ -296,6 +296,7 @@ model ApplicationFile {
   documents Document[]
   auditLogs AuditLog[]
   consents  ConsentRecord[]
+  assessments ProfileAssessment[]
 
   @@index([status])
   @@index([advisorId])
@@ -449,4 +450,20 @@ model RecoveryAttempt {
   createdAt DateTime @default(now())
 
   @@index([kind, ipHash, createdAt])
+}
+
+/// Autoevaluación del perfil para visa de turismo (orientativa, no es una predicción)
+model ProfileAssessment {
+  id                String   @id @default(cuid())
+  applicationFileId String
+  /// strong | moderate | weak
+  level             String
+  /// Respuestas y resultado completos, cifrados (incluyen antecedentes migratorios e ingresos)
+  dataEnc           String
+  hasFlags          Boolean  @default(false)
+  createdAt         DateTime @default(now())
+
+  applicationFile ApplicationFile @relation(fields: [applicationFileId], references: [id], onDelete: Cascade)
+
+  @@index([applicationFileId, createdAt])
 }

@@ -105,6 +105,11 @@ export default async function PortalHome() {
             </dl>
           </div>
           <AdvisorContactCard contact={contact} unread={unread} />
+          <Link href="/portal/autoevaluacion" className="block rounded-2xl border bg-card p-5 shadow-sm transition hover:border-primary/40">
+            <p className="text-sm font-semibold">¿Qué tan preparado está su perfil?</p>
+            <p className="mt-1 text-sm text-muted-foreground">Haga la autoevaluación (3 minutos) y vea qué reforzar antes de la entrevista.</p>
+            <p className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary">Evaluarme <ArrowRight className="size-4" /></p>
+          </Link>
           <div className="rounded-2xl border bg-card p-5 shadow-sm">
             <h2 className="text-sm font-semibold">Su copia</h2>
             <div className="mt-3 grid gap-2">

@@ -21,6 +21,8 @@ import { ReassignAdvisor } from "@/components/admin/reassign-advisor";
 import { DocumentViewer } from "@/components/admin/document-viewer";
 import { PassportVerifyButton } from "@/components/admin/passport-verify";
 import { activeDocuments } from "@/server/documents";
+import { AssessmentResultView } from "@/components/assessment/assessment-result";
+import { latestAssessment } from "@/server/assessment";
 import type { FileStatus } from "@/generated/prisma/enums";
 
 export const metadata: Metadata = { title: "Expediente" };
@@ -44,6 +46,7 @@ export default async function AdminFilePage(props: PageProps<"/admin/expedientes
   const settings = await getSettings();
   const isAdmin = me.role === "ADMIN";
   const docs = await activeDocuments(file.id);
+  const assessment = await latestAssessment(file.id);
   const passportDoc = docs.find((d) => d.kind === "PASSPORT");
   const viewerDocs = docs
     .sort((a, b) => (a.kind === "PASSPORT" ? -1 : b.kind === "PASSPORT" ? 1 : 0))
@@ -194,6 +197,18 @@ export default async function AdminFilePage(props: PageProps<"/admin/expedientes
                 <p className="font-semibold">Correcciones solicitadas</p>
                 <p className="mt-0.5 whitespace-pre-line">{file.correctionRequest}</p>
               </div>
+            )}
+          </section>
+
+          <section className="rounded-2xl border bg-card p-5 shadow-sm">
+            <h2 className="text-sm font-semibold">Autoevaluación del cliente</h2>
+            {assessment ? (
+              <div className="mt-3 space-y-2">
+                <p className="text-xs text-muted-foreground">Realizada el {formatDateTime(assessment.createdAt)}</p>
+                <AssessmentResultView result={assessment.result} audience="advisor" />
+              </div>
+            ) : (
+              <p className="mt-2 text-sm text-muted-foreground">El cliente aún no ha hecho la autoevaluación de su perfil.</p>
             )}
           </section>
 

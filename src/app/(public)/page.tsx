@@ -1,4 +1,4 @@
-import { ArrowRight, Clock, FileText, KeyRound, Lock, MessageSquare, Printer, Save, ShieldCheck, UserCheck } from "lucide-react";
+import { ArrowRight, Clock, FileText, KeyRound, Lock, MessageSquare, Printer, Save, ShieldCheck, UserCheck, ClipboardCheck } from "lucide-react";
 import Link from "next/link";
 import { DisclaimerBox } from "@/components/shared/disclaimer";
 import { WhatsAppIcon } from "@/components/shared/whatsapp-button";
@@ -48,6 +48,9 @@ export default async function HomePage() {
               </Link>
             </div>
             <p className="text-xs text-muted-foreground">Sin cuentas ni contraseñas. Solo un código y sus datos de verificación.</p>
+            <Link href="/autoevaluacion" className="inline-flex w-fit items-center gap-2 rounded-xl border bg-card px-4 py-2.5 text-sm font-medium text-primary shadow-sm transition hover:bg-secondary">
+              <ClipboardCheck className="size-4" /> ¿Qué tan preparado está su perfil? Evalúelo gratis en 3 minutos <ArrowRight className="size-4" />
+            </Link>
           </div>
 
           {/* Vista previa ilustrativa */}
