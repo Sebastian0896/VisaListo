@@ -1,6 +1,6 @@
 "use client";
 
-import { ClipboardList, FileCog, History, LayoutDashboard, MessageSquare, Settings, UserRound, Users } from "lucide-react";
+import { ChartColumn, ClipboardList, FileCog, History, LayoutDashboard, MessageSquare, Settings, UserRound, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -11,6 +11,7 @@ const ITEMS: Item[] = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/admin/expedientes", label: "Expedientes", icon: ClipboardList, badgeKey: "submitted" },
   { href: "/admin/mensajes", label: "Mensajes", icon: MessageSquare, badgeKey: "unread" },
+  { href: "/admin/estadisticas", label: "Estadísticas", icon: ChartColumn },
   { href: "/admin/formulario", label: "Formulario", icon: FileCog, adminOnly: true },
   { href: "/admin/usuarios", label: "Usuarios", icon: Users, adminOnly: true },
   { href: "/admin/auditoria", label: "Auditoría", icon: History, adminOnly: true },

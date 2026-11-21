@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/shared/theme";
 import { Toaster } from "@/components/ui/sonner";
+import { WebAnalytics } from "@/components/shared/web-analytics";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
@@ -32,6 +33,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <TooltipProvider>{children}</TooltipProvider>
           <Toaster richColors position="top-center" />
         </ThemeProvider>
+        <WebAnalytics />
       </body>
     </html>
   );
