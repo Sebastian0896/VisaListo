@@ -5,6 +5,7 @@ import { WhatsAppFloat } from "@/components/shared/whatsapp-button";
 import { buttonVariants } from "@/components/ui/button";
 import { getSettings, whatsappLink } from "@/lib/settings";
 import { ThemeToggle } from "@/components/shared/theme";
+import { NavLink } from "@/components/shared/nav-link";
 import { cn } from "@/lib/utils";
 
 export default async function PublicLayout({ children }: LayoutProps<"/">) {
@@ -18,13 +19,13 @@ export default async function PublicLayout({ children }: LayoutProps<"/">) {
           <Brand name={s.platformName} logoUrl={s.logoUrl} />
           <nav className="hidden items-center gap-1 text-sm md:flex" aria-label="Principal">
             <Link href="/#como-funciona" className="rounded-md px-3 py-2 text-muted-foreground hover:text-foreground">Cómo funciona</Link>
-            <Link href="/autoevaluacion" className="rounded-md px-3 py-2 text-muted-foreground hover:text-foreground">Evalúe su perfil</Link>
+            <NavLink href="/autoevaluacion" className="rounded-md px-3 py-2 text-muted-foreground hover:text-foreground" activeClassName="bg-secondary font-medium text-primary">Evalúe su perfil</NavLink>
             <Link href="/#seguridad" className="rounded-md px-3 py-2 text-muted-foreground hover:text-foreground">Seguridad</Link>
             <Link href="/#contacto" className="rounded-md px-3 py-2 text-muted-foreground hover:text-foreground">Contacto</Link>
           </nav>
           <div className="flex items-center gap-2">
             <ThemeToggle />
-            <Link href="/recuperar" className={cn(buttonVariants({ variant: "ghost" }), "hidden sm:inline-flex")}>Recuperar</Link>
+            <NavLink href="/recuperar" className={cn(buttonVariants({ variant: "ghost" }), "hidden sm:inline-flex")} activeClassName="bg-secondary text-primary">Recuperar</NavLink>
             <Link href="/comenzar" className={buttonVariants()}>Comenzar</Link>
           </div>
         </div>

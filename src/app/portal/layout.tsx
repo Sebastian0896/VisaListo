@@ -1,5 +1,4 @@
 import { ClipboardCheck, FileText, Home, LogOut, MessageSquare, Printer } from "lucide-react";
-import Link from "next/link";
 import { logoutClientAction } from "@/actions/client";
 import { ExpiryCountdown } from "@/components/portal/expiry-countdown";
 import { Brand } from "@/components/shared/brand";
@@ -8,6 +7,7 @@ import { StatusBadge } from "@/components/shared/status-badge";
 import { WhatsAppFloat } from "@/components/shared/whatsapp-button";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/shared/theme";
+import { NavLink } from "@/components/shared/nav-link";
 import { getPortalData } from "@/server/portal";
 
 export const dynamic = "force-dynamic";
@@ -16,8 +16,8 @@ export default async function PortalLayout({ children }: LayoutProps<"/portal">)
   const { file, settings, unread, sections, contact } = await getPortalData();
   const firstSection = sections[0]?.key ?? "";
   const nav = [
-    { href: "/portal", label: "Resumen", icon: Home },
-    { href: `/portal/formulario/${firstSection}`, label: "Formulario", icon: FileText },
+    { href: "/portal", label: "Resumen", icon: Home, exact: true },
+    { href: `/portal/formulario/${firstSection}`, label: "Formulario", icon: FileText, match: ["/portal/formulario", "/portal/revision"] },
     { href: "/portal/mensajes", label: "Mensajes", icon: MessageSquare, badge: unread },
     { href: "/portal/autoevaluacion", label: "Autoevaluación", icon: ClipboardCheck },
     { href: "/portal/imprimir", label: "Imprimir", icon: Printer },
@@ -44,10 +44,17 @@ export default async function PortalLayout({ children }: LayoutProps<"/portal">)
         </div>
         <nav className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-3 pb-2" aria-label="Portal">
           {nav.map((n) => (
-            <Link key={n.label} href={n.href} className="relative inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm whitespace-nowrap text-muted-foreground transition hover:bg-secondary hover:text-foreground">
+            <NavLink
+              key={n.label}
+              href={n.href}
+              exact={"exact" in n && n.exact}
+              match={"match" in n ? n.match : []}
+              className="relative inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm whitespace-nowrap text-muted-foreground transition hover:bg-secondary hover:text-foreground"
+              activeClassName="bg-secondary font-medium text-primary after:absolute after:inset-x-3 after:-bottom-2 after:h-0.5 after:rounded-full after:bg-primary"
+            >
               <n.icon className="size-4" /> {n.label}
               {!!n.badge && <span className="ml-0.5 rounded-full bg-primary px-1.5 text-[11px] font-semibold text-primary-foreground">{n.badge}</span>}
-            </Link>
+            </NavLink>
           ))}
         </nav>
       </header>
