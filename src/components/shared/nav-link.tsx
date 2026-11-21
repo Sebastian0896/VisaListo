@@ -15,8 +15,10 @@ export function NavLink({
   match = [],
   className,
   activeClassName,
+  onClick,
   children,
 }: {
+  onClick?: () => void;
   href: string;
   exact?: boolean;
   match?: string[];
@@ -26,9 +28,10 @@ export function NavLink({
 }) {
   const pathname = usePathname();
   const base = href.split("#")[0] || "/";
-  const active = exact ? pathname === base : [base, ...match].some((p) => pathname === p || pathname.startsWith(`${p}/`));
+  // Los enlaces a una sección de la página (/#algo) no se marcan como activos
+  const active = !href.includes("#") && (exact ? pathname === base : [base, ...match].some((p) => pathname === p || pathname.startsWith(`${p}/`)));
   return (
-    <Link href={href} aria-current={active ? "page" : undefined} className={cn(className, active && activeClassName)}>
+    <Link href={href} onClick={onClick} aria-current={active ? "page" : undefined} className={cn(className, active && activeClassName)}>
       {children}
     </Link>
   );
