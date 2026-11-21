@@ -53,10 +53,10 @@ Plataforma privada de preparación y asesoría. No es un sitio del Gobierno de l
   return { html, text };
 }
 
-async function deliver(input: { to: string; subject: string; template: Template; fileId: string; kind: string; recipient: "advisor" | "admin" | "client" }) {
+async function deliver(input: { to: string; subject: string; template: Template; fileId: string; kind: string; recipient: "advisor" | "admin" | "client"; replyTo?: string | null }) {
   const settings = await getSettings();
   const { html, text } = render(settings.platformName, input.template);
-  const res = await sendEmail({ to: input.to, subject: input.subject, html, text, replyTo: settings.contactEmail, fromName: settings.platformName });
+  const res = await sendEmail({ to: input.to, subject: input.subject, html, text, replyTo: input.replyTo || settings.contactEmail, fromName: settings.platformName });
   await audit({
     action: res.ok ? "email.sent" : "email.failed",
     actorType: "SYSTEM",
@@ -124,7 +124,7 @@ export async function notifyClient(fileId: string, event: ClientEvent) {
     if (!emailConfigured()) return false;
     const file = await db.applicationFile.findUnique({
       where: { id: fileId },
-      include: { applicant: true, advisor: { select: { name: true, active: true } } },
+      include: { applicant: true, advisor: { select: { name: true, email: true, active: true } } },
     });
     if (!file) return false;
     const answers = await getAnswers(fileId);
@@ -161,7 +161,8 @@ export async function notifyClient(fileId: string, event: ClientEvent) {
       },
     };
     const { subject, template } = map[event];
-    await deliver({ to, subject, template, fileId, kind: `client.${event}`, recipient: "client" });
+    // Las respuestas del cliente van a su asesor; sin asesor activo, al correo de contacto de la oficina
+    await deliver({ to, subject, template, fileId, kind: `client.${event}`, recipient: "client", replyTo: file.advisor?.active ? file.advisor.email : null });
     return true;
   } catch (e) {
     console.error("notifyClient:", (e as Error).message);
