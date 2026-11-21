@@ -69,8 +69,11 @@ export default async function PublicLayout({ children }: LayoutProps<"/">) {
             </ul>
           </div>
         </div>
-        <div className="border-t py-4 text-center text-xs text-muted-foreground">
-          © {new Date().getFullYear()} {s.platformName}. Servicio privado de asesoría. No garantizamos la aprobación de ninguna visa.
+        <div className="space-y-1 border-t px-4 py-4 text-center text-xs text-muted-foreground">
+          <p>© {new Date().getFullYear()} {s.platformName}. Servicio privado de asesoría. No garantizamos la aprobación de ninguna visa.</p>
+          <p>
+            Desarrollado por <span className="font-medium text-foreground/80">Sebastian Gonzalez Rodriguez</span>
+          </p>
         </div>
       </footer>
       <WhatsAppFloat href={wa} />
