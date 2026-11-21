@@ -7,7 +7,7 @@ import { getSettings, whatsappLink } from "@/lib/settings";
 import { ThemeToggle } from "@/components/shared/theme";
 import { NavLink } from "@/components/shared/nav-link";
 import { PublicMobileNav, type PublicNavItem } from "@/components/shared/public-mobile-nav";
-import { StartCta } from "@/components/shared/start-cta";
+import { HideOnStartPage, StartCta } from "@/components/shared/start-cta";
 import { cn } from "@/lib/utils";
 
 const NAV: PublicNavItem[] = [
@@ -52,7 +52,9 @@ export default async function PublicLayout({ children }: LayoutProps<"/">) {
           <div className="space-y-2 text-sm">
             <p className="font-medium">Plataforma</p>
             <ul className="space-y-1.5 text-muted-foreground">
-              <li><Link className="hover:text-foreground" href="/comenzar">Comenzar formulario</Link></li>
+              <HideOnStartPage>
+                <li><Link className="hover:text-foreground" href="/comenzar">Comenzar formulario</Link></li>
+              </HideOnStartPage>
               <li><Link className="hover:text-foreground" href="/recuperar">Recuperar mi formulario</Link></li>
               <li><Link className="hover:text-foreground" href="/autoevaluacion">Autoevaluación de su perfil</Link></li>
               <li><Link className="hover:text-foreground" href="/preguntas-frecuentes">Preguntas frecuentes</Link></li>
