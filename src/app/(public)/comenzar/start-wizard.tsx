@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createFileSchema } from "@/validation/answers";
+import { AdvisorReminder } from "./advisor-reminder";
 
 type FormIn = z.input<typeof createFileSchema>;
 type FormOut = z.output<typeof createFileSchema>;
@@ -77,6 +78,11 @@ export function StartWizard({
               <span className="font-medium">{result.advisorName}</span>
             </p>
           )}
+          {!result.advisorName && (
+            <p className="no-print mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-left text-sm text-amber-950 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-100">
+              Su expediente aún no tiene asesor. Cuando tenga el código, vincúlelo desde su portal.
+            </p>
+          )}
           <p className="mt-4 text-left text-xs leading-relaxed text-muted-foreground">
             Para recuperar su formulario necesitará: este código, su primer apellido, su año de nacimiento y la respuesta a su
             pregunta de seguridad. Documento privado de preparación. No es el formulario DS-160 oficial.
@@ -133,6 +139,8 @@ export function StartWizard({
           <Link href="/portal" className="font-medium text-primary underline underline-offset-2">Ir a mi expediente</Link>
         </div>
       )}
+
+      {!initialAdvisor && !hasSession && <AdvisorReminder onCode={(code) => form.setValue("advisorCode", code, { shouldDirty: true })} />}
 
       <form onSubmit={onSubmit} className="space-y-6 rounded-2xl border bg-card p-5 shadow-sm sm:p-6" noValidate>
         <fieldset className="space-y-4">
