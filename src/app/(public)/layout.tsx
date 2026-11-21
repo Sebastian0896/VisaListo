@@ -7,6 +7,7 @@ import { getSettings, whatsappLink } from "@/lib/settings";
 import { ThemeToggle } from "@/components/shared/theme";
 import { NavLink } from "@/components/shared/nav-link";
 import { PublicMobileNav, type PublicNavItem } from "@/components/shared/public-mobile-nav";
+import { StartCta } from "@/components/shared/start-cta";
 import { cn } from "@/lib/utils";
 
 const NAV: PublicNavItem[] = [
@@ -37,7 +38,7 @@ export default async function PublicLayout({ children }: LayoutProps<"/">) {
             <ThemeToggle />
             <PublicMobileNav title={s.platformName} items={[...NAV, { href: "/recuperar", label: "Recuperar mi formulario" }]} />
             <NavLink href="/recuperar" className={cn(buttonVariants({ variant: "ghost" }), "hidden sm:inline-flex")} activeClassName="bg-secondary text-primary">Recuperar</NavLink>
-            <Link href="/comenzar" className={buttonVariants()}>Comenzar</Link>
+            <StartCta />
           </div>
         </div>
       </header>
